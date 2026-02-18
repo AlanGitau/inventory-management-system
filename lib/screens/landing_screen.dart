@@ -180,6 +180,35 @@ class _LandingScreenState extends State<LandingScreen>
 
                             const SizedBox(height: 40),
 
+                            // Pricing Section
+                            _buildPricingSection(context, isDarkMode, isSmallScreen, isMediumScreen),
+
+                            const SizedBox(height: 60),
+
+                            // Consultation Section
+                            Center(
+                              child: OutlinedButton.icon(
+                                onPressed: () => _showConsultationDialog(context),
+                                icon: const Icon(Icons.calendar_today),
+                                label: Text(
+                                  'Book a Consultation',
+                                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: isDarkMode ? Colors.white : const Color(0xFFFF6B00),
+                                  side: BorderSide(
+                                      color: isDarkMode ? Colors.white54 : const Color(0xFFFF6B00)),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 40),
+
                             // Quick Start Guide
                             _buildQuickGuideSection(context, isDarkMode),
 
@@ -296,6 +325,70 @@ class _LandingScreenState extends State<LandingScreen>
             ),
           ),
         ),
+
+        const SizedBox(height: 32),
+
+        // Free Trial Button
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                theme.primaryColor,
+                theme.primaryColor.withValues(alpha: 0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: theme.primaryColor.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      const WidgetTree(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOutCubic;
+                    var tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+                    var slideAnimation = animation.drive(tween);
+                    return SlideTransition(
+                      position: slideAnimation,
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: Colors.white,
+              shadowColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            child: Text(
+              'Start 14-Day Free Trial',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -366,6 +459,130 @@ class _LandingScreenState extends State<LandingScreen>
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPricingSection(BuildContext context, bool isDarkMode,
+      bool isSmallScreen, bool isMediumScreen) {
+    return AnimationLimiter(
+      child: Column(
+        children: AnimationConfiguration.toStaggeredList(
+          duration: const Duration(milliseconds: 600),
+          childAnimationBuilder: (widget) => ScaleAnimation(
+            child: FadeInAnimation(child: widget),
+          ),
+          children: [
+            Text(
+              'Simple Pricing',
+              style: GoogleFonts.poppins(
+                fontSize: 23,
+                fontWeight: FontWeight.bold,
+                color: isDarkMode ? Colors.white : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Choose the plan that fits your business',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: isDarkMode ? Colors.white60 : Colors.black54,
+              ),
+            ),
+            const SizedBox(height: 32),
+            if (isSmallScreen) ...[
+              _PricingCard(
+                title: 'Entry',
+                price: 'KES 5,200',
+                usdPrice: '\$40',
+                description: 'Small shops & boutiques',
+                features: const ['Basic Inventory', '5 Users', 'Email Support'],
+                isDarkMode: isDarkMode,
+                isHighlight: false,
+              ),
+              const SizedBox(height: 16),
+              _PricingCard(
+                title: 'Mid',
+                price: 'KES 13,000',
+                usdPrice: '\$100',
+                description: 'Growing SMEs',
+                features: const [
+                  'Advanced Analytics',
+                  '20 Users',
+                  'Priority Support',
+                  'AI Predictions'
+                ],
+                isDarkMode: isDarkMode,
+                isHighlight: true,
+              ),
+              const SizedBox(height: 16),
+              _PricingCard(
+                title: 'High',
+                price: 'KES 45,500',
+                usdPrice: '\$350',
+                description: 'Retail chains',
+                features: const [
+                  'Unlimited Users',
+                  'Dedicated Support',
+                  'Custom Integrations',
+                  'Multi-location'
+                ],
+                isDarkMode: isDarkMode,
+                isHighlight: false,
+              ),
+            ] else
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _PricingCard(
+                      title: 'Entry',
+                      price: 'KES 5,200',
+                      usdPrice: '\$40',
+                      description: 'Small shops & boutiques',
+                      features: const ['Basic Inventory', '5 Users', 'Email Support'],
+                      isDarkMode: isDarkMode,
+                      isHighlight: false,
+                    ),
+                    const SizedBox(width: 16),
+                    _PricingCard(
+                      title: 'Mid',
+                      price: 'KES 13,000',
+                      usdPrice: '\$100',
+                      description: 'Growing SMEs',
+                      features: const [
+                        'Advanced Analytics',
+                        '20 Users',
+                        'Priority Support',
+                        'AI Predictions'
+                      ],
+                      isDarkMode: isDarkMode,
+                      isHighlight: true,
+                    ),
+                    const SizedBox(width: 16),
+                    _PricingCard(
+                      title: 'High',
+                      price: 'KES 45,500',
+                      usdPrice: '\$350',
+                      description: 'Retail chains',
+                      features: const [
+                        'Unlimited Users',
+                        'Dedicated Support',
+                        'Custom Integrations',
+                        'Multi-location'
+                      ],
+                      isDarkMode: isDarkMode,
+                      isHighlight: false,
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
@@ -1255,6 +1472,602 @@ class _LandingScreenState extends State<LandingScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+  void _showConsultationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        String? selectedRole;
+        String selectedTimeline = 'Immediately';
+        final Map<String, bool> communicationMethods = {
+          'Email': false,
+          'Whatsapp': false,
+          'Phone': false,
+          'SMS': false,
+        };
+        final formKey = GlobalKey<FormState>();
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: const EdgeInsets.all(16),
+              child: Container(
+                width: 700,
+                constraints: const BoxConstraints(maxWidth: 700),
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFEEEEEE)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Cloudora Waitlist Form',
+                              style: GoogleFonts.poppins(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF333333),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              icon: const Icon(Icons.close, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Sign up to use our effective, solution-oriented software that will simplify work and amplify your impact',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: const Color(0xFF666666),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Section 1: Personal Details
+                        Text(
+                          'Personal Details',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF333333),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isWide = constraints.maxWidth > 500;
+                            return Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        child: _buildTextField(
+                                            'Name', 'e.g., John Doe')),
+                                    if (isWide) ...[
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                          child: _buildTextField('Email',
+                                              'john.doe@gmail.com')),
+                                    ],
+                                  ],
+                                ),
+                                if (!isWide) ...[
+                                  const SizedBox(height: 16),
+                                  _buildTextField(
+                                      'Email', 'john.doe@gmail.com'),
+                                ],
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        child: _buildTextField('Phone',
+                                            '+254 712345678')),
+                                    if (isWide) ...[
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                          child: _buildTextField(
+                                              'Company name',
+                                              'e.g., Acme Corporation')),
+                                    ],
+                                  ],
+                                ),
+                                if (!isWide) ...[
+                                  const SizedBox(height: 16),
+                                  _buildTextField('Company name',
+                                      'e.g., Acme Corporation'),
+                                ],
+                              ],
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Section 2: Your Role
+                        Text(
+                          'Your Role *',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF333333),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        LayoutBuilder(builder: (context, constraints) {
+                           final isWide = constraints.maxWidth > 500;
+                           return Column(
+                             children: [
+                               Row(
+                                 children: [
+                                   Expanded(child: _buildRoleCard('Owner/Founder', selectedRole, (val) => setState(() => selectedRole = val))),
+                                   if (isWide) ...[
+                                      const SizedBox(width: 16),
+                                      Expanded(child: _buildRoleCard('Manager', selectedRole, (val) => setState(() => selectedRole = val))),
+                                   ]
+                                 ],
+                               ),
+                               if (!isWide) ...[
+                                 const SizedBox(height: 16),
+                                 _buildRoleCard('Manager', selectedRole, (val) => setState(() => selectedRole = val)),
+                               ],
+                               const SizedBox(height: 16),
+                               Row(
+                                 children: [
+                                   Expanded(child: _buildRoleCard('Employee', selectedRole, (val) => setState(() => selectedRole = val))),
+                                   if (isWide) ...[
+                                      const SizedBox(width: 16),
+                                      Expanded(child: _buildRoleCard('Other', selectedRole, (val) => setState(() => selectedRole = val))),
+                                   ]
+                                 ],
+                               ),
+                               if (!isWide) ...[
+                                 const SizedBox(height: 16),
+                                 _buildRoleCard('Other', selectedRole, (val) => setState(() => selectedRole = val)),
+                               ],
+                             ],
+                           );
+                        }),
+                        const SizedBox(height: 24),
+
+                        // Section 3: Implementation Timeline
+                        Text(
+                          'How soon would you like to start using these products? *',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF333333),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        LayoutBuilder(builder: (context, constraints) {
+                           final isWide = constraints.maxWidth > 600;
+                           return Column(
+                             children: [
+                                Row(
+                                  children: [
+                                    Expanded(child: _buildRadioOption('Immediately', selectedTimeline, (val) => setState(() => selectedTimeline = val!))),
+                                    if(isWide) ...[
+                                      const SizedBox(width: 16),
+                                      Expanded(child: _buildRadioOption('Within 1-3 months', selectedTimeline, (val) => setState(() => selectedTimeline = val!))),
+                                    ]
+                                  ],
+                                ),
+                                if(!isWide) ...[
+                                   const SizedBox(height: 16),
+                                   _buildRadioOption('Within 1-3 months', selectedTimeline, (val) => setState(() => selectedTimeline = val!)),
+                                ],
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(child: _buildRadioOption('Just Exploring', selectedTimeline, (val) => setState(() => selectedTimeline = val!))),
+                                    if (isWide) const Spacer(),
+                                  ]
+                                )
+                             ],
+                           );
+                        }),
+                        const SizedBox(height: 24),
+
+                        // Section 4: Preferred Communication
+                        Text(
+                          'What is your preferred communication method? *',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF333333),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        LayoutBuilder(builder: (context, constraints) {
+                          return Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(child: _buildCheckboxOption('Email', communicationMethods, (val) => setState(() => communicationMethods['Email'] = val!))),
+                                  const SizedBox(width: 16),
+                                  Expanded(child: _buildCheckboxOption('Whatsapp', communicationMethods, (val) => setState(() => communicationMethods['Whatsapp'] = val!))),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(child: _buildCheckboxOption('Phone', communicationMethods, (val) => setState(() => communicationMethods['Phone'] = val!))),
+                                  const SizedBox(width: 16),
+                                  Expanded(child: _buildCheckboxOption('SMS', communicationMethods, (val) => setState(() => communicationMethods['SMS'] = val!))),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(child: _buildCheckboxOption('Other', communicationMethods, (val) => setState(() {}))), // Simplified 'Other' for now
+                                  const Spacer(),
+                                ],
+                              ),
+                            ],
+                          );
+                        }),
+                        const SizedBox(height: 32),
+
+                        // Action Buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                // Clear form
+                                Navigator.of(context).pop();
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: const Color(0xFF666666),
+                              ),
+                              child: Text(
+                                'Cancel',
+                                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Handle submission
+                                Navigator.of(context).pop();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Consultation request sent!')),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFFF6B00), // Cloudora Orange
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: Text(
+                                'Book Consultation',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildTextField(String label, String hint) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: label,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF333333),
+            ),
+            children: const [
+              TextSpan(
+                text: ' *',
+                style: TextStyle(color: Colors.red),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFFF6B00)),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRoleCard(String title, String? groupValue, ValueChanged<String?> onChanged) {
+    final isSelected = groupValue == title;
+    return GestureDetector(
+      onTap: () => onChanged(title),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? const Color(0xFFFF6B00) : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Center(
+          child: Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: isSelected ? const Color(0xFFFF6B00) : const Color(0xFF666666),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRadioOption(String title, String groupValue, ValueChanged<String?> onChanged) {
+    final isSelected = groupValue == title;
+    return GestureDetector(
+      onTap: () => onChanged(title),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? const Color(0xFFFF6B00) : Colors.grey[300]!,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [ // Align content to center/left
+             Center(child: Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: const Color(0xFF333333),
+              ),
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCheckboxOption(String title, Map<String, bool> values, ValueChanged<bool?> onChanged) {
+    final isChecked = values[title] ?? false;
+    return GestureDetector(
+      onTap: () => onChanged(!isChecked),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isChecked ? const Color(0xFFFF6B00) : Colors.grey[300]!,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isChecked ? Icons.check_box : Icons.check_box_outline_blank,
+              color: isChecked ? const Color(0xFFFF6B00) : Colors.grey[400],
+            ),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: const Color(0xFF333333),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PricingCard extends StatelessWidget {
+  final String title;
+  final String price;
+  final String usdPrice;
+  final String description;
+  final List<String> features;
+  final bool isDarkMode;
+  final bool isHighlight;
+
+  const _PricingCard({
+    required this.title,
+    required this.price,
+    required this.usdPrice,
+    required this.description,
+    required this.features,
+    required this.isDarkMode,
+    required this.isHighlight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Container(
+      width: 280,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDarkMode
+            ? (isHighlight
+                ? theme.primaryColor.withValues(alpha: 0.2)
+                : Colors.white.withValues(alpha: 0.05))
+            : (isHighlight ? const Color(0xFFF0F4FF) : Colors.white),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isHighlight
+              ? theme.primaryColor
+              : (isDarkMode ? Colors.white.withValues(alpha: 0.1) : Colors.grey[200]!),
+          width: isHighlight ? 2 : 1,
+        ),
+        boxShadow: isHighlight
+            ? [
+                BoxShadow(
+                  color: theme.primaryColor.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ]
+            : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: isHighlight
+                  ? theme.primaryColor
+                  : (isDarkMode ? Colors.white70 : Colors.black54),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                price,
+                style: GoogleFonts.poppins(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            usdPrice,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: isDarkMode ? Colors.white60 : Colors.black45,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: isDarkMode ? Colors.white70 : Colors.black54,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 24),
+          ...features.map((feature) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      size: 18,
+                      color: isHighlight
+                          ? theme.primaryColor
+                          : (isDarkMode ? Colors.white60 : Colors.green),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        feature,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: isDarkMode ? Colors.white70 : Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isHighlight
+                    ? theme.primaryColor
+                    : (isDarkMode ? Colors.white10 : Colors.grey[100]),
+                foregroundColor: isHighlight
+                    ? Colors.white
+                    : (isDarkMode ? Colors.white : Colors.black87),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: isHighlight ? 4 : 0,
+              ),
+              child: Text(
+                'Choose Plan',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

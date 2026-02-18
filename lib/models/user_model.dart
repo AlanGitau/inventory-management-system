@@ -20,6 +20,21 @@ class AppUser {
   final bool expiryAlertsEnabled;
   final bool stockAlertsEnabled;
   final bool predictionAlertsEnabled;
+  final DateTime? trialStartDate;
+
+  bool get isTrialActive {
+    if (trialStartDate == null) return false;
+    final now = DateTime.now();
+    final difference = now.difference(trialStartDate!).inDays;
+    return difference >= 0 && difference < 14;
+  }
+
+  int get daysRemainingInTrial {
+    if (trialStartDate == null) return 0;
+    final now = DateTime.now();
+    final difference = now.difference(trialStartDate!).inDays;
+    return (14 - difference).clamp(0, 14);
+  }
 
   AppUser({
     required this.id,
@@ -36,6 +51,7 @@ class AppUser {
     this.expiryAlertsEnabled = true,
     this.stockAlertsEnabled = true,
     this.predictionAlertsEnabled = true,
+    this.trialStartDate,
   });
 
   factory AppUser.fromMap(Map<String, dynamic> map, String documentId) {
@@ -88,6 +104,7 @@ class AppUser {
       predictionAlertsEnabled: _convertToBool(map['predictionAlertsEnabled'] ??
           map['prediction_alerts_enabled'] ??
           true),
+      trialStartDate: parseTimestamp(map['trialStartDate'] ?? map['trial_start_date']),
     );
   }
 
@@ -105,7 +122,9 @@ class AppUser {
       'smsNotificationsEnabled': smsNotificationsEnabled,
       'expiryAlertsEnabled': expiryAlertsEnabled,
       'stockAlertsEnabled': stockAlertsEnabled,
+      'stockAlertsEnabled': stockAlertsEnabled,
       'predictionAlertsEnabled': predictionAlertsEnabled,
+      'trialStartDate': trialStartDate,
     };
   }
 
@@ -125,7 +144,9 @@ class AppUser {
       'smsNotificationsEnabled': smsNotificationsEnabled,
       'expiryAlertsEnabled': expiryAlertsEnabled,
       'stockAlertsEnabled': stockAlertsEnabled,
+      'stockAlertsEnabled': stockAlertsEnabled,
       'predictionAlertsEnabled': predictionAlertsEnabled,
+      'trialStartDate': trialStartDate?.toIso8601String(),
     };
   }
 
@@ -155,6 +176,9 @@ class AppUser {
       stockAlertsEnabled: _convertToBool(json['stockAlertsEnabled'] ?? true),
       predictionAlertsEnabled:
           _convertToBool(json['predictionAlertsEnabled'] ?? true),
+      trialStartDate: json['trialStartDate'] != null
+          ? DateTime.parse(json['trialStartDate'])
+          : null,
     );
   }
 
@@ -173,6 +197,7 @@ class AppUser {
     bool? expiryAlertsEnabled,
     bool? stockAlertsEnabled,
     bool? predictionAlertsEnabled,
+    DateTime? trialStartDate,
   }) {
     return AppUser(
       id: id ?? this.id,
@@ -192,6 +217,7 @@ class AppUser {
       stockAlertsEnabled: stockAlertsEnabled ?? this.stockAlertsEnabled,
       predictionAlertsEnabled:
           predictionAlertsEnabled ?? this.predictionAlertsEnabled,
+      trialStartDate: trialStartDate ?? this.trialStartDate,
     );
   }
 
