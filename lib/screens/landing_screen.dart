@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'auth/widget_tree.dart';
 
 class LandingScreen extends StatefulWidget {
@@ -502,6 +503,7 @@ class _LandingScreenState extends State<LandingScreen>
                 features: const ['Basic Inventory', '5 Users', 'Email Support'],
                 isDarkMode: isDarkMode,
                 isHighlight: false,
+                onSelectPlan: () => _showConsultationDialog(context, plan: 'Entry'),
               ),
               const SizedBox(height: 16),
               _PricingCard(
@@ -517,6 +519,7 @@ class _LandingScreenState extends State<LandingScreen>
                 ],
                 isDarkMode: isDarkMode,
                 isHighlight: true,
+                onSelectPlan: () => _showConsultationDialog(context, plan: 'Mid'),
               ),
               const SizedBox(height: 16),
               _PricingCard(
@@ -532,6 +535,7 @@ class _LandingScreenState extends State<LandingScreen>
                 ],
                 isDarkMode: isDarkMode,
                 isHighlight: false,
+                onSelectPlan: () => _showConsultationDialog(context, plan: 'High'),
               ),
             ] else
               SingleChildScrollView(
@@ -549,6 +553,7 @@ class _LandingScreenState extends State<LandingScreen>
                       features: const ['Basic Inventory', '5 Users', 'Email Support'],
                       isDarkMode: isDarkMode,
                       isHighlight: false,
+                      onSelectPlan: () => _showConsultationDialog(context, plan: 'Entry'),
                     ),
                     const SizedBox(width: 16),
                     _PricingCard(
@@ -564,6 +569,7 @@ class _LandingScreenState extends State<LandingScreen>
                       ],
                       isDarkMode: isDarkMode,
                       isHighlight: true,
+                      onSelectPlan: () => _showConsultationDialog(context, plan: 'Mid'),
                     ),
                     const SizedBox(width: 16),
                     _PricingCard(
@@ -579,6 +585,7 @@ class _LandingScreenState extends State<LandingScreen>
                       ],
                       isDarkMode: isDarkMode,
                       isHighlight: false,
+                      onSelectPlan: () => _showConsultationDialog(context, plan: 'High'),
                     ),
                   ],
                 ),
@@ -1477,7 +1484,7 @@ class _LandingScreenState extends State<LandingScreen>
       ),
     );
   }
-  void _showConsultationDialog(BuildContext context) {
+  void _showConsultationDialog(BuildContext context, {String? plan}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -1490,6 +1497,13 @@ class _LandingScreenState extends State<LandingScreen>
           'SMS': false,
         };
         final formKey = GlobalKey<FormState>();
+        
+        // Controllers for form fields
+        final nameController = TextEditingController();
+        final emailController = TextEditingController();
+        final phoneController = TextEditingController();
+        final companyController = TextEditingController();
+        final businessTypeController = TextEditingController();
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -1522,12 +1536,16 @@ class _LandingScreenState extends State<LandingScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Cloudora Waitlist Form',
-                              style: GoogleFonts.poppins(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF333333),
+                            Expanded(
+                              child: Text(
+                                plan != null 
+                                    ? 'Get Started with $plan Plan' 
+                                    : 'Cloudora Waitlist Form',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF333333),
+                                ),
                               ),
                             ),
                             IconButton(
@@ -1565,40 +1583,42 @@ class _LandingScreenState extends State<LandingScreen>
                                   children: [
                                     Expanded(
                                         child: _buildTextField(
-                                            'Name', 'e.g., John Doe')),
+                                            'Name', 'e.g., John Doe', nameController)),
                                     if (isWide) ...[
                                       const SizedBox(width: 16),
                                       Expanded(
                                           child: _buildTextField('Email',
-                                              'john.doe@gmail.com')),
+                                              'john.doe@gmail.com', emailController)),
                                     ],
                                   ],
                                 ),
                                 if (!isWide) ...[
                                   const SizedBox(height: 16),
                                   _buildTextField(
-                                      'Email', 'john.doe@gmail.com'),
+                                      'Email', 'john.doe@gmail.com', emailController),
                                 ],
                                 const SizedBox(height: 16),
                                 Row(
                                   children: [
                                     Expanded(
                                         child: _buildTextField('Phone',
-                                            '+254 712345678')),
+                                            '+254 712345678', phoneController)),
                                     if (isWide) ...[
                                       const SizedBox(width: 16),
                                       Expanded(
                                           child: _buildTextField(
                                               'Company name',
-                                              'e.g., Acme Corporation')),
+                                              'e.g., Acme Corporation', companyController)),
                                     ],
                                   ],
                                 ),
                                 if (!isWide) ...[
                                   const SizedBox(height: 16),
                                   _buildTextField('Company name',
-                                      'e.g., Acme Corporation'),
+                                      'e.g., Acme Corporation', companyController),
                                 ],
+                                const SizedBox(height: 16),
+                                _buildTextField('Business Type', 'e.g., Retail, Manufacturing', businessTypeController),
                               ],
                             );
                           },
@@ -1749,12 +1769,88 @@ class _LandingScreenState extends State<LandingScreen>
                             ),
                             const SizedBox(width: 16),
                             ElevatedButton(
-                              onPressed: () {
-                                // Handle submission
-                                Navigator.of(context).pop();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Consultation request sent!')),
+                              onPressed: () async {
+                                // Capture data
+                                final name = nameController.text;
+                                final email = emailController.text;
+                                final phone = phoneController.text;
+                                final company = companyController.text;
+                                final businessType = businessTypeController.text;
+                                final role = selectedRole ?? 'Not specified';
+                                final timeline = selectedTimeline;
+                                final preferredMethods = communicationMethods.entries
+                                    .where((e) => e.value)
+                                    .map((e) => e.key)
+                                    .join(', ');
+                                final selectedPlan = plan ?? 'Consultation Only';
+
+                                // Validation (Basic)
+                                if (name.isEmpty || email.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Please fill in required fields')),
+                                  );
+                                  return;
+                                }
+
+                                final String body = '''
+Name: $name
+Email: $email
+Phone: $phone
+Company: $company
+Business Type: $businessType
+Role: $role
+Timeline: $timeline
+Preferred Communication: $preferredMethods
+Selected Plan: $selectedPlan
+                                ''';
+
+                                final Uri emailLaunchUri = Uri(
+                                  scheme: 'mailto',
+                                  path: 'stocksense@cloudora.live',
+                                  query: 'subject=${Uri.encodeComponent('New Consultation Request - $selectedPlan')}&body=${Uri.encodeComponent(body)}',
                                 );
+
+                                if (await canLaunchUrl(emailLaunchUri)) {
+                                  await launchUrl(emailLaunchUri);
+                                } else {
+                                  // Fallback or error handling
+                                  debugPrint('Could not launch email');
+                                }
+
+                                if (context.mounted) {
+                                  Navigator.of(context).pop(); // Close dialog
+                                  
+                                  // Show Thank You Message
+                                  showDialog(
+                                    context: context, 
+                                    builder: (context) => Dialog(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(24.0),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.check_circle_outline, color: Color(0xFFFF6B00), size: 64),
+                                            const SizedBox(height: 16),
+                                            Text('Thank You!', style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold)),
+                                            const SizedBox(height: 8),
+                                            Text('We\'ve received your request and will get back to you shortly.', textAlign: TextAlign.center, style: GoogleFonts.poppins()),
+                                            const SizedBox(height: 24),
+                                            ElevatedButton(
+                                              onPressed: () => Navigator.of(context).pop(),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFFFF6B00),
+                                                foregroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                              ),
+                                              child: const Text('Back to Home'),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  );
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFFF6B00), // Cloudora Orange
@@ -1766,7 +1862,7 @@ class _LandingScreenState extends State<LandingScreen>
                                 elevation: 0,
                               ),
                               child: Text(
-                                'Book Consultation',
+                                plan != null ? 'Submit Request' : 'Book Consultation',
                                 style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -1786,7 +1882,7 @@ class _LandingScreenState extends State<LandingScreen>
     );
   }
 
-  Widget _buildTextField(String label, String hint) {
+  Widget _buildTextField(String label, String hint, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1808,6 +1904,7 @@ class _LandingScreenState extends State<LandingScreen>
         ),
         const SizedBox(height: 8),
         TextFormField(
+          controller: controller,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 14),
@@ -1931,6 +2028,7 @@ class _PricingCard extends StatelessWidget {
   final List<String> features;
   final bool isDarkMode;
   final bool isHighlight;
+  final VoidCallback onSelectPlan;
 
   const _PricingCard({
     required this.title,
@@ -1940,6 +2038,7 @@ class _PricingCard extends StatelessWidget {
     required this.features,
     required this.isDarkMode,
     required this.isHighlight,
+    required this.onSelectPlan,
   });
 
   @override
@@ -2047,7 +2146,7 @@ class _PricingCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: onSelectPlan,
               style: ElevatedButton.styleFrom(
                 backgroundColor: isHighlight
                     ? theme.primaryColor
