@@ -25,23 +25,22 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Professional green color palette based on app icon
-  static const Color primaryGreen =
-      Color(0xFF1B5E20); // Dark forest green from icon
-  static const Color secondaryGreen = Color(0xFF2E7D32); // Medium green
-  static const Color accentGreen = Color(0xFF43A047); // Lighter green
-  static const Color lightGreen = Color(0xFF81C784); // Light green for accents
-  static const Color paleGreen = Color(0xFFC8E6C9); // Very light green
+  // Cloudora Orange color palette
+  static const Color primaryOrange = Color(0xFFFF6B00); // Cloudora Orange
+  static const Color secondaryOrange = Color(0xFFFF8C00); // Darker Orange
+  static const Color accentOrange = Color(0xFFFF9E40); // Lighter Orange
+  static const Color lightOrange = Color(0xFFFFB74D); // Soft Orange
+  static const Color paleOrange = Color(0xFFFFE0B2); // Pale Orange
 
   ThemeData get lightTheme {
     return ThemeData(
       brightness: Brightness.light,
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryGreen,
-        primary: primaryGreen,
-        secondary: secondaryGreen,
-        tertiary: accentGreen,
+        seedColor: primaryOrange,
+        primary: primaryOrange,
+        secondary: secondaryOrange,
+        tertiary: accentOrange,
         surface: Colors.white,
         error: Colors.redAccent.shade700,
         brightness: Brightness.light,
@@ -51,7 +50,7 @@ class ThemeProvider extends ChangeNotifier {
           fontWeight: FontWeight.w600,
           fontSize: 20,
           letterSpacing: 0.15,
-          color: primaryGreen,
+          color: primaryOrange,
         ),
         titleMedium: GoogleFonts.poppins(
           fontWeight: FontWeight.w500,
@@ -71,7 +70,7 @@ class ThemeProvider extends ChangeNotifier {
         shadowColor: Colors.black.withValues(alpha: 0.15),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: primaryGreen,
+        backgroundColor: primaryOrange,
         foregroundColor: Colors.white,
         elevation: 4,
         centerTitle: false,
@@ -84,7 +83,7 @@ class ThemeProvider extends ChangeNotifier {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryGreen,
+          backgroundColor: primaryOrange,
           foregroundColor: Colors.white,
           elevation: 4,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -99,8 +98,8 @@ class ThemeProvider extends ChangeNotifier {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: primaryGreen,
-          side: const BorderSide(color: primaryGreen, width: 2),
+          foregroundColor: primaryOrange,
+          side: const BorderSide(color: primaryOrange, width: 2),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -109,7 +108,7 @@ class ThemeProvider extends ChangeNotifier {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: primaryGreen,
+          foregroundColor: primaryOrange,
           textStyle: GoogleFonts.poppins(
             fontWeight: FontWeight.w500,
           ),
@@ -128,13 +127,13 @@ class ThemeProvider extends ChangeNotifier {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: primaryGreen, width: 2),
+          borderSide: const BorderSide(color: primaryOrange, width: 2),
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: secondaryGreen,
+        backgroundColor: secondaryOrange,
         foregroundColor: Colors.white,
         elevation: 6,
         shape: RoundedRectangleBorder(
@@ -151,7 +150,7 @@ class ThemeProvider extends ChangeNotifier {
         size: 24,
       ),
       listTileTheme: ListTileThemeData(
-        iconColor: primaryGreen,
+        iconColor: primaryOrange,
         textColor: Colors.grey.shade800,
       ),
     );
@@ -162,10 +161,10 @@ class ThemeProvider extends ChangeNotifier {
       brightness: Brightness.dark,
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: lightGreen,
-        primary: lightGreen,
-        secondary: accentGreen,
-        tertiary: secondaryGreen,
+        seedColor: lightOrange,
+        primary: lightOrange,
+        secondary: accentOrange,
+        tertiary: secondaryOrange,
         surface: const Color(0xFF1E1E1E),
         error: Colors.redAccent.shade400,
         brightness: Brightness.dark,
@@ -237,7 +236,7 @@ class ThemeProvider extends ChangeNotifier {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: lightGreen,
+          backgroundColor: lightOrange,
           foregroundColor: Colors.black87,
           elevation: 4,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -252,8 +251,8 @@ class ThemeProvider extends ChangeNotifier {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: lightGreen,
-          side: BorderSide(color: lightGreen, width: 2),
+          foregroundColor: lightOrange,
+          side: BorderSide(color: lightOrange, width: 2),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -262,7 +261,7 @@ class ThemeProvider extends ChangeNotifier {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: lightGreen,
+          foregroundColor: lightOrange,
           textStyle: GoogleFonts.poppins(
             fontWeight: FontWeight.w500,
           ),
@@ -281,13 +280,13 @@ class ThemeProvider extends ChangeNotifier {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: lightGreen, width: 2),
+          borderSide: BorderSide(color: lightOrange, width: 2),
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: accentGreen,
+        backgroundColor: accentOrange,
         foregroundColor: Colors.white,
         elevation: 8,
         shape: RoundedRectangleBorder(
@@ -304,7 +303,7 @@ class ThemeProvider extends ChangeNotifier {
         size: 24,
       ),
       listTileTheme: const ListTileThemeData(
-        iconColor: lightGreen,
+        iconColor: lightOrange,
         textColor: Colors.white70,
       ),
       // Enhanced dark theme colors for better contrast and visual appeal
@@ -327,11 +326,11 @@ class ThemeProvider extends ChangeNotifier {
         contentTextStyle: GoogleFonts.poppins(
           color: Colors.white,
         ),
-        actionTextColor: lightGreen,
+        actionTextColor: lightOrange,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: const Color(0xFF1E1E1E),
-        selectedItemColor: lightGreen,
+        selectedItemColor: lightOrange,
         unselectedItemColor: Colors.white54,
         selectedLabelStyle: GoogleFonts.poppins(
           fontSize: 12,
@@ -341,7 +340,7 @@ class ThemeProvider extends ChangeNotifier {
         type: BottomNavigationBarType.fixed,
       ),
       tabBarTheme: TabBarThemeData(
-        labelColor: lightGreen,
+        labelColor: lightOrange,
         unselectedLabelColor: Colors.white54,
         labelStyle: GoogleFonts.poppins(
           fontSize: 14,
@@ -349,26 +348,26 @@ class ThemeProvider extends ChangeNotifier {
         ),
         unselectedLabelStyle: GoogleFonts.poppins(fontSize: 14),
         indicator: UnderlineTabIndicator(
-          borderSide: BorderSide(color: lightGreen, width: 2),
+          borderSide: BorderSide(color: lightOrange, width: 2),
         ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: const Color(0xFF2D2D2D),
         labelStyle: GoogleFonts.poppins(color: Colors.white),
-        selectedColor: lightGreen.withValues(alpha: 0.3),
+        selectedColor: lightOrange.withValues(alpha: 0.3),
         disabledColor: Colors.grey.shade700,
         brightness: Brightness.dark,
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return lightGreen;
+            return lightOrange;
           }
           return Colors.grey.shade400;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return lightGreen.withValues(alpha: 0.5);
+            return lightOrange.withValues(alpha: 0.5);
           }
           return Colors.grey.shade600;
         }),
@@ -376,7 +375,7 @@ class ThemeProvider extends ChangeNotifier {
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return lightGreen;
+            return lightOrange;
           }
           return Colors.transparent;
         }),
@@ -385,7 +384,7 @@ class ThemeProvider extends ChangeNotifier {
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return lightGreen;
+            return lightOrange;
           }
           return Colors.white54;
         }),
