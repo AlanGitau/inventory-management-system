@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 import '../services/inventory_service.dart';
 import '../services/auth_service.dart';
+import '../services/trial_service.dart';
 import '../services/expiry_notification_service.dart';
 import '../models/user_model.dart';
 import '../models/inventory_item.dart';
@@ -143,6 +144,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Trial Status Banner
+              _buildTrialBanner(),
+              const SizedBox(height: 10),
+
               // Welcome Section
               _buildWelcomeCard(),
               const SizedBox(height: 20),
@@ -179,6 +184,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
       userName: _getFirstName(currentUser?.displayName.split(',')[0] ?? 'User'),
       themeToggleButton: _buildThemeToggleButton(),
       profileAvatar: _buildUserAvatar(currentUser),
+    );
+  }
+
+  Widget _buildTrialBanner() {
+    return FutureBuilder<int>(
+      future: TrialService.getRemainingDays(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox.shrink();
+        
+        final daysLeft = snapshot.data!;
+        // The user only sees this if trial is not expired (handled by SplashScreen)
+        final isWarning = daysLeft < 3;
+        
+        final backgroundColor = isWarning 
+            ? const Color(0xFFFF4D4D).withValues(alpha: 0.1) // Subtle red
+            : const Color(0xFFFF6B00).withValues(alpha: 0.1); // Cloudora Orange
+        
+        final textColor = isWarning 
+            ? const Color(0xFFFF4D4D) 
+            : const Color(0xFFFF6B00);
+            
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: textColor.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.timer_outlined, size: 20, color: textColor),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Your Free Trial ends in $daysLeft days',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -601,52 +653,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        // // Debug button to add test perishable items
-        // if (currentUser?.isAdmin == true) ...[
-        //   Card(
-        //     elevation: 2,
-        //     shape: RoundedRectangleBorder(
-        //       borderRadius: BorderRadius.circular(12),
-        //     ),
-        //     child: InkWell(
-        //       onTap: _addTestPerishableItems,
-        //       borderRadius: BorderRadius.circular(12),
-        //       child: Padding(
-        //         padding: const EdgeInsets.all(12),
-        //         child: Row(
-        //           children: [
-        //             Container(
-        //               padding: const EdgeInsets.all(8),
-        //               decoration: BoxDecoration(
-        //                 color: Colors.orange.withValues(alpha: 0.1),
-        //                 borderRadius: BorderRadius.circular(8),
-        //               ),
-        //               child: const Icon(
-        //                 Icons.add_circle,
-        //                 color: Colors.orange,
-        //                 size: 20,
-        //               ),
-        //             ),
-        //             const SizedBox(width: 12),
-        //             Expanded(
-        //               child: Text(
-        //                 'Add Test Perishable Items (Debug)',
-        //                 style: GoogleFonts.poppins(
-        //                   fontSize: 14,
-        //                   fontWeight: FontWeight.w500,
-        //                   color: Theme.of(context).brightness == Brightness.dark
-        //                       ? Colors.white70
-        //                       : Colors.grey[700],
-        //                 ),
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ),
-        //   ),
-        // const SizedBox(height: 12),
-        // ],
+
         LayoutBuilder(
           builder: (context, constraints) {
             // Create list of all quick actions
@@ -1025,94 +1032,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
-  // Future<void> _addTestPerishableItems() async {
-  //   try {
-  //     final now = DateTime.now();
-
-  //     // Create test items with different expiry scenarios
-  //     final testItems = [
-  //       InventoryItem(
-  //         id: '',
-  //         name: 'Milk',
-  //         description: 'Fresh dairy milk',
-  //         category: 'Food & Beverages',
-  //         quantity: 10,
-  //         unitPrice: 2.50,
-  //         supplier: 'Local Dairy',
-  //         createdAt: now,
-  //         updatedAt: now,
-  //         reorderLevel: 5,
-  //         isPerishable: true,
-  //         expiryDate: now.add(const Duration(days: 5)), // Expires in 5 days
-  //       ),
-  //       InventoryItem(
-  //         id: '',
-  //         name: 'Bread',
-  //         description: 'Whole grain bread',
-  //         category: 'Food & Beverages',
-  //         quantity: 15,
-  //         unitPrice: 3.00,
-  //         supplier: 'Bakery Co',
-  //         createdAt: now,
-  //         updatedAt: now,
-  //         reorderLevel: 8,
-  //         isPerishable: true,
-  //         expiryDate: now.subtract(const Duration(days: 2)), // Already expired
-  //       ),
-  //       InventoryItem(
-  //         id: '',
-  //         name: 'Cheese',
-  //         description: 'Aged cheddar cheese',
-  //         category: 'Food & Beverages',
-  //         quantity: 8,
-  //         unitPrice: 8.50,
-  //         supplier: 'Cheese Factory',
-  //         createdAt: now,
-  //         updatedAt: now,
-  //         reorderLevel: 3,
-  //         isPerishable: true,
-  //         expiryDate: now.add(const Duration(days: 25)), // Expires in 25 days
-  //       ),
-  //       InventoryItem(
-  //         id: '',
-  //         name: 'Yogurt',
-  //         description: 'Greek yogurt',
-  //         category: 'Food & Beverages',
-  //         quantity: 12,
-  //         unitPrice: 1.75,
-  //         supplier: 'Dairy Farms',
-  //         createdAt: now,
-  //         updatedAt: now,
-  //         reorderLevel: 6,
-  //         isPerishable: true,
-  //         expiryDate: now.add(const Duration(days: 90)), // Expires in 90 days
-  //       ),
-  //     ];
-
-  //     for (final item in testItems) {
-  //       await InventoryService.addInventoryItem(item);
-  //     }
-
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(
-  //           content: Text('Added 4 test perishable items for expiry testing'),
-  //           backgroundColor: Colors.green,
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Error adding test items: $e'),
-  //           backgroundColor: Colors.red,
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
 
   void _showExpiryItemsDialog(ExpiryPriority priority) {
     String title;

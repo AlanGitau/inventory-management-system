@@ -1,8 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/inventory_item.dart';
+import '../exceptions/inventory_exceptions.dart';
 
 class ExpiryNotificationService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Helper to get user-specific collection reference
+  static CollectionReference _getCollection(String collectionName) {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw InventoryException('User not authenticated');
+    }
+    return _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection(collectionName);
+  }
 
   /// Get all items that are expiring within the specified number of days
   static Future<List<InventoryItem>> getExpiringItems(
@@ -12,8 +27,7 @@ class ExpiryNotificationService {
       final thresholdDate = now.add(Duration(days: daysThreshold));
 
       // Get all perishable items and filter in memory
-      final querySnapshot = await _firestore
-          .collection('inventory_items')
+      final querySnapshot = await _getCollection('inventory_items')
           .where('isPerishable', isEqualTo: true)
           .get();
 
@@ -40,8 +54,7 @@ class ExpiryNotificationService {
       final now = DateTime.now();
 
       // Get all perishable items and filter in memory to avoid Firestore query limitations
-      final querySnapshot = await _firestore
-          .collection('inventory_items')
+      final querySnapshot = await _getCollection('inventory_items')
           .where('isPerishable', isEqualTo: true)
           .get();
 
@@ -98,11 +111,11 @@ class ExpiryNotificationService {
 
   /// Real-time expiry summary stream for dashboard
   static Stream<Map<String, int>> getExpirySummaryStream() {
-    return _firestore
-        .collection('inventory_items')
-        .where('isPerishable', isEqualTo: true)
-        .snapshots()
-        .asyncMap((snapshot) async {
+    try {
+      return _getCollection('inventory_items')
+          .where('isPerishable', isEqualTo: true)
+          .snapshots()
+          .asyncMap((snapshot) async {
       try {
         final items =
             snapshot.docs.map((doc) => InventoryItem.fromDoc(doc)).toList();
@@ -154,6 +167,14 @@ class ExpiryNotificationService {
         };
       }
     });
+    } catch (e) {
+      return Stream.value({
+        'expired': 0,
+        'expiringSoon': 0,
+        'expiringWithin6Months': 0,
+        'immediateAttention': 0,
+      });
+    }
   }
 
   /// Get notification priority for an item
@@ -213,8 +234,7 @@ class ExpiryNotificationService {
       final now = DateTime.now();
 
       // Get all perishable items and filter in memory
-      final querySnapshot = await _firestore
-          .collection('inventory_items')
+      final querySnapshot = await _getCollection('inventory_items')
           .where('isPerishable', isEqualTo: true)
           .get();
 
@@ -263,11 +283,11 @@ class ExpiryNotificationService {
   /// Stream of expiring items for real-time updates
   static Stream<List<InventoryItem>> getExpiringItemsStream(
       {int daysThreshold = 180}) {
-    return _firestore
-        .collection('inventory_items')
-        .where('isPerishable', isEqualTo: true)
-        .snapshots()
-        .map((snapshot) {
+    try {
+      return _getCollection('inventory_items')
+          .where('isPerishable', isEqualTo: true)
+          .snapshots()
+          .map((snapshot) {
       final now = DateTime.now();
       final thresholdDate = now.add(Duration(days: daysThreshold));
 
@@ -279,7 +299,10 @@ class ExpiryNotificationService {
               item.expiryDate!.isBefore(thresholdDate))
           .toList()
         ..sort((a, b) => a.expiryDate!.compareTo(b.expiryDate!));
-    });
+      });
+    } catch (e) {
+      return Stream.value([]);
+    }
   }
 }
 
