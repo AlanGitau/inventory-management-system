@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,6 +24,11 @@ class _LandingScreenState extends State<LandingScreen>
   final bool _isExpanded = false;
   int _selectedFeature = -1;
   int _selectedGuideStep = -1;
+
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _featuresKey = GlobalKey();
+  final GlobalKey _pricingKey = GlobalKey();
+  final GlobalKey _aboutKey = GlobalKey();
 
   // Theme-aware color palette for feature icons
   static Map<IconData, Color> getFeatureIconColors(
@@ -104,6 +110,7 @@ class _LandingScreenState extends State<LandingScreen>
   void dispose() {
     _fadeController.dispose();
     _scaleController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -118,6 +125,80 @@ class _LandingScreenState extends State<LandingScreen>
     final isMediumScreen = screenWidth < 600;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: AppBar(
+              backgroundColor: isDarkMode
+                  ? Colors.black.withOpacity(0.2)
+                  : Colors.white.withOpacity(0.2),
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              title: Text(
+                'StockSense',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
+              actions: [
+                if (!isSmallScreen) ...[
+                  _buildNavLink(
+                      'Features', isDarkMode, () => _scrollToSection(_featuresKey)),
+                  _buildNavLink(
+                      'Pricing', isDarkMode, () => _scrollToSection(_pricingKey)),
+                  _buildNavLink(
+                      'About', isDarkMode, () => _scrollToSection(_aboutKey)),
+                ],
+                Padding(
+                  padding: const EdgeInsets.only(right: 16, left: 8),
+                  child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => const WidgetTree()),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: isDarkMode 
+                          ? Colors.black.withOpacity(0.5) 
+                          : Colors.white.withOpacity(0.5),
+                      foregroundColor: isDarkMode ? Colors.white : theme.primaryColor,
+                      side: BorderSide(
+                          color: isDarkMode ? Colors.white54 : theme.primaryColor),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    ),
+                    child: Text(
+                      'Login',
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600, fontSize: 13),
+                    ),
+                  ),
+                ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
       body: AnimatedBuilder(
         animation: _fadeAnimation,
         builder: (context, child) {
@@ -130,107 +211,154 @@ class _LandingScreenState extends State<LandingScreen>
                   end: Alignment.bottomRight,
                   colors: isDarkMode
                       ? [
-                          // Dark theme: Pure dark gradient for better dark mode experience
-                          const Color(0xFF121212), // Dark grey
-                          const Color(0xFF1e1e1e), // Slightly lighter dark grey
-                          const Color(0xFF0f0f0f), // Very dark grey
+                          const Color(0xFF121212),
+                          const Color(0xFF1e1e1e),
+                          const Color(0xFF0f0f0f),
                         ]
                       : [
-                          // Light theme: Neutral gradient for better readability
                           Colors.grey[50]!,
                           Colors.grey[25] ?? Colors.white,
                           Colors.white,
                           Colors.white,
                         ],
                   stops: isDarkMode
-                      ? const [0.0, 0.5, 1.0] // 3 stops for 3 colors
-                      : const [0.0, 0.33, 0.67, 1.0], // 4 stops for 4 colors
+                      ? const [0.0, 0.5, 1.0]
+                      : const [0.0, 0.33, 0.67, 1.0],
                 ),
               ),
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 20),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: [
+                          // Hero Section with Background
+                          AnimatedBuilder(
+                            animation: _scaleAnimation,
+                            builder: (context, child) {
+                              return Transform.scale(
+                                scale: _scaleAnimation.value,
+                                child: _buildHeroSection(context, isDarkMode,
+                                    isSmallScreen, isMediumScreen),
+                              );
+                            },
+                          ),
 
-                            // Animated Logo Section
-                            AnimatedBuilder(
-                              animation: _scaleAnimation,
-                              builder: (context, child) {
-                                return Transform.scale(
-                                  scale: _scaleAnimation.value,
-                                  child: _buildHeroSection(context, isDarkMode,
-                                      isSmallScreen, isMediumScreen),
-                                );
-                              },
+                          Padding(
+                            key: _featuresKey,
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 20),
+                                // App Overview Section
+                                _buildAppOverview(context, isDarkMode,
+                                    isSmallScreen, isMediumScreen),
+
+                                const SizedBox(height: 40),
+
+                                // Interactive Features Section
+                                _buildFeaturesSection(context, isDarkMode),
+                              ],
                             ),
+                          ),
 
-                            const SizedBox(height: 40),
+                          Padding(
+                            key: _pricingKey,
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 40),
 
-                            // App Overview Section
-                            _buildAppOverview(context, isDarkMode,
-                                isSmallScreen, isMediumScreen),
+                                // Pricing Section
+                                _buildPricingSection(
+                                    context, isDarkMode, isSmallScreen, isMediumScreen),
+                              ],
+                            ),
+                          ),
 
-                            const SizedBox(height: 40),
+                          Padding(
+                            key: _aboutKey,
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 60),
 
-                            // Interactive Features Section
-                            _buildFeaturesSection(context, isDarkMode),
-
-                            const SizedBox(height: 40),
-
-                            // Pricing Section
-                            _buildPricingSection(context, isDarkMode, isSmallScreen, isMediumScreen),
-
-                            const SizedBox(height: 60),
-
-                            // Consultation Section
-                            Center(
-                              child: OutlinedButton.icon(
-                                onPressed: () => ConsultationUtils.showConsultationDialog(context),
-                                icon: const Icon(Icons.calendar_today),
-                                label: Text(
-                                  'Book a Consultation',
-                                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: isDarkMode ? Colors.white : const Color(0xFFFF6B00),
-                                  side: BorderSide(
-                                      color: isDarkMode ? Colors.white54 : const Color(0xFFFF6B00)),
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
+                                // Consultation Section
+                                Center(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () =>
+                                        ConsultationUtils.showConsultationDialog(context),
+                                    icon: const Icon(Icons.calendar_today),
+                                    label: Text(
+                                      'Book a Consultation',
+                                      style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: isDarkMode
+                                          ? Colors.white
+                                          : const Color(0xFFFF6B00),
+                                      side: BorderSide(
+                                          color: isDarkMode
+                                              ? Colors.white54
+                                              : const Color(0xFFFF6B00)),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 24, vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
+
+                                const SizedBox(height: 40),
+
+                                // Quick Start Guide
+                                _buildQuickGuideSection(context, isDarkMode),
+
+                                const SizedBox(height: 40),
+
+                                // Stats Section
+                                _buildStatsSection(context, isDarkMode),
+
+                                const SizedBox(height: 40),
+                              ],
                             ),
-
-                            const SizedBox(height: 40),
-
-                            // Quick Start Guide
-                            _buildQuickGuideSection(context, isDarkMode),
-
-                            const SizedBox(height: 40),
-
-                            // Stats Section
-                            _buildStatsSection(context, isDarkMode),
-
-                            const SizedBox(height: 40),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                    _buildGetStartedButton(context),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+  void _scrollToSection(GlobalKey key) {
+    final context = key.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  Widget _buildNavLink(String title, bool isDarkMode, VoidCallback onTap) {
+    return TextButton(
+      onPressed: onTap,
+      child: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: isDarkMode ? Colors.white70 : Colors.black87,
+        ),
       ),
     );
   }
@@ -239,31 +367,45 @@ class _LandingScreenState extends State<LandingScreen>
       bool isSmallScreen, bool isMediumScreen) {
     final theme = Theme.of(context);
 
-    return Column(
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: const AssetImage('assets/images/landing_image.png'),
+          fit: BoxFit.cover,
+          opacity: 0.25,
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 80, 24, 60),
+      child: Column(
       children: [
         // Animated Logo with Glow Effect
         Container(
-          padding: const EdgeInsets.all(20),
+          width: 110,
+          height: 110,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
               colors: [
-                theme.primaryColor.withValues(alpha: 0.2),
+                theme.primaryColor.withValues(alpha: 0.3),
                 theme.primaryColor.withValues(alpha: 0.1),
               ],
             ),
             boxShadow: [
               BoxShadow(
-                color: theme.primaryColor.withValues(alpha: 0.3),
-                blurRadius: 20,
-                spreadRadius: 5,
+                color: theme.primaryColor.withValues(alpha: 0.4),
+                blurRadius: 25,
+                spreadRadius: 8,
               ),
             ],
           ),
-          child: Icon(
-            Icons.inventory_2_outlined,
-            size: 80,
-            color: isDarkMode ? Colors.white : theme.primaryColor,
+          child: ClipOval(
+            child: Image.asset(
+              'assets/icons/orange_logo.jpeg',
+              width: 110,
+              height: 110,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
 
@@ -344,9 +486,10 @@ class _LandingScreenState extends State<LandingScreen>
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFF6B00).withValues(alpha: 0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
+                color: const Color(0xFFFF6B00).withValues(alpha: 0.5),
+                blurRadius: 15,
+                spreadRadius: 1,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
@@ -391,9 +534,14 @@ class _LandingScreenState extends State<LandingScreen>
             ),
           ),
         ),
+
+        const SizedBox(height: 32),
+
+        _buildGetStartedButton(context),
       ],
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildAppOverview(BuildContext context, bool isDarkMode,
       bool isSmallScreen, bool isMediumScreen) {
@@ -1338,8 +1486,7 @@ class _LandingScreenState extends State<LandingScreen>
     final isDarkMode = theme.brightness == Brightness.dark;
 
     return AnimationLimiter(
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      child: SizedBox(
         width: double.infinity,
         child: Column(
           children: [
