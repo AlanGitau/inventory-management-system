@@ -11,6 +11,8 @@ class AppUser {
   final DateTime lastLoginAt;
   final bool isActive;
   final String? profilePhotoPath;
+  final String? organizationId;
+  final String? adminUid;
 
   String phone;
 
@@ -45,6 +47,8 @@ class AppUser {
     required this.lastLoginAt,
     this.isActive = true,
     this.profilePhotoPath,
+    this.organizationId,
+    this.adminUid,
     required this.phone,
     this.emailNotificationsEnabled = true,
     this.smsNotificationsEnabled = true,
@@ -88,7 +92,9 @@ class AppUser {
       lastLoginAt: parseTimestamp(map['lastLoginAt'] ?? map['last_login_at']),
       isActive: _convertToBool(map['isActive'] ?? map['is_active'] ?? true),
       profilePhotoPath:
-          map['profilePhotoPath'] ?? map['profile_photo_path'] ?? '',
+          map['profilePhotoPath'] ?? map['profile_photo_path'],
+      organizationId: map['organizationId'] ?? map['organization_id'],
+      adminUid: map['adminUid'] ?? map['admin_uid'],
       phone: map['phone'] ?? '',
       emailNotificationsEnabled: _convertToBool(
           map['emailNotificationsEnabled'] ??
@@ -117,11 +123,12 @@ class AppUser {
       'lastLoginAt': lastLoginAt,
       'isActive': isActive,
       'profilePhotoPath': profilePhotoPath,
+      'organizationId': organizationId,
+      'adminUid': adminUid,
       'phone': phone,
       'emailNotificationsEnabled': emailNotificationsEnabled,
       'smsNotificationsEnabled': smsNotificationsEnabled,
       'expiryAlertsEnabled': expiryAlertsEnabled,
-      'stockAlertsEnabled': stockAlertsEnabled,
       'stockAlertsEnabled': stockAlertsEnabled,
       'predictionAlertsEnabled': predictionAlertsEnabled,
       'trialStartDate': trialStartDate,
@@ -139,11 +146,12 @@ class AppUser {
       'lastLoginAt': lastLoginAt.toIso8601String(),
       'isActive': isActive,
       'profilePhotoPath': profilePhotoPath,
+      'organizationId': organizationId,
+      'adminUid': adminUid,
       'phone': phone,
       'emailNotificationsEnabled': emailNotificationsEnabled,
       'smsNotificationsEnabled': smsNotificationsEnabled,
       'expiryAlertsEnabled': expiryAlertsEnabled,
-      'stockAlertsEnabled': stockAlertsEnabled,
       'stockAlertsEnabled': stockAlertsEnabled,
       'predictionAlertsEnabled': predictionAlertsEnabled,
       'trialStartDate': trialStartDate?.toIso8601String(),
@@ -167,6 +175,8 @@ class AppUser {
           : DateTime.now(),
       isActive: _convertToBool(json['isActive'] ?? true),
       profilePhotoPath: json['profilePhotoPath'],
+      organizationId: json['organizationId'],
+      adminUid: json['adminUid'],
       phone: json['phone'] ?? '',
       emailNotificationsEnabled:
           _convertToBool(json['emailNotificationsEnabled'] ?? true),
@@ -191,6 +201,8 @@ class AppUser {
     DateTime? lastLoginAt,
     bool? isActive,
     String? profilePhotoPath,
+    String? organizationId,
+    String? adminUid,
     String? phone,
     bool? emailNotificationsEnabled,
     bool? smsNotificationsEnabled,
@@ -208,6 +220,8 @@ class AppUser {
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
       isActive: isActive ?? this.isActive,
       profilePhotoPath: profilePhotoPath ?? this.profilePhotoPath,
+      organizationId: organizationId ?? this.organizationId,
+      adminUid: adminUid ?? this.adminUid,
       phone: phone ?? this.phone,
       emailNotificationsEnabled:
           emailNotificationsEnabled ?? this.emailNotificationsEnabled,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/auth_service.dart';
+import '../../models/user_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inventory_management_system/screens/auth/widget_tree.dart';
 
@@ -36,7 +37,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _controllerConfirmPassword =
       TextEditingController();
 
-  // UserRole _selectedRole = UserRole.staff; // Commented out - role determined from Firebase backend
+  UserRole _selectedRole = UserRole.staff;
+  final TextEditingController _controllerInviteCode = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
@@ -113,7 +115,8 @@ class _LoginPageState extends State<LoginPage> {
         email: _controllerEmail.text.trim(),
         password: _controllerPassword.text,
         displayName: _controllerDisplayName.text.trim(),
-        // No role parameter - will use default staff role
+        role: _selectedRole,
+        inviteCode: _selectedRole == UserRole.staff ? _controllerInviteCode.text.trim() : null,
       );
 
       if (user != null) {
@@ -279,88 +282,65 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Role Selection (only for login) - COMMENTED OUT: Role determined from Firebase backend
-                        /*
-                         if (isLogin) ...[
-                           Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               const SizedBox(height: 16),
-                               Text(
-                                 'Select Role',
-                                 style: GoogleFonts.poppins(
-                                   fontSize: 14,
-                                   fontWeight: FontWeight.w500,
-                                   color: Theme.of(context).brightness ==
-                                           Brightness.dark
-                                       ? Colors.white70
-                                       : Colors.grey[700],
-                                 ),
-                               ),
-                               const SizedBox(height: 8),
-                               Container(
-                                 padding: const EdgeInsets.symmetric(
-                                     horizontal: 16, vertical: 8),
-                                 decoration: BoxDecoration(
-                                   borderRadius: BorderRadius.circular(12),
-                                   border: Border.all(
-                                     color: Theme.of(context).brightness ==
-                                             Brightness.dark
-                                         ? Colors.white30
-                                         : Colors.grey[300]!,
-                                   ),
-                                 ),
-                                 child: Row(
-                                   mainAxisAlignment:
-                                       MainAxisAlignment.spaceEvenly,
-                                   children: [
-                                     RadioListTile<UserRole>(
-                                       title: Text(
-                                         'Staff',
-                                         style: GoogleFonts.poppins(
-                                           color: Theme.of(context).brightness ==
-                                                   Brightness.dark
-                                               ? Colors.white
-                                               : Colors.black,
-                                         ),
-                                       ),
-                                       value: UserRole.staff,
-                                       groupValue: _selectedRole,
-                                       onChanged: (UserRole? value) {
-                                         setState(() {
-                                           _selectedRole = value!;
-                                         });
-                                       },
-                                       dense: true,
-                                       contentPadding: EdgeInsets.zero,
-                                     ),
-                                     RadioListTile<UserRole>(
-                                       title: Text(
-                                         'Admin',
-                                         style: GoogleFonts.poppins(
-                                           color: Theme.of(context).brightness ==
-                                                   Brightness.dark
-                                               ? Colors.white
-                                               : Colors.black,
-                                         ),
-                                       ),
-                                       value: UserRole.admin,
-                                       groupValue: _selectedRole,
-                                       onChanged: (UserRole? value) {
-                                         setState(() {
-                                           _selectedRole = value!;
-                                         });
-                                       },
-                                       dense: true,
-                                       contentPadding: EdgeInsets.zero,
-                                     ),
-                                   ],
-                                 ),
-                               ),
-                             ],
-                           ),
-                         ],
-                         */
+                        // Role Selection (only for registration)
+                        if (!isLogin) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            'Sign up as:',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white70
+                                  : Colors.grey[700],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: RadioListTile<UserRole>(
+                                  title: const Text('Owner'),
+                                  value: UserRole.admin,
+                                  groupValue: _selectedRole,
+                                  onChanged: (value) => setState(() => _selectedRole = value!),
+                                  contentPadding: EdgeInsets.zero,
+                                  dense: true,
+                                ),
+                              ),
+                              Expanded(
+                                child: RadioListTile<UserRole>(
+                                  title: const Text('Staff'),
+                                  value: UserRole.staff,
+                                  groupValue: _selectedRole,
+                                  onChanged: (value) => setState(() => _selectedRole = value!),
+                                  contentPadding: EdgeInsets.zero,
+                                  dense: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (_selectedRole == UserRole.staff) ...[
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _controllerInviteCode,
+                              decoration: InputDecoration(
+                                labelText: 'Invite Code (Organization ID)',
+                                prefixIcon: const Icon(Icons.business),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (!isLogin && _selectedRole == UserRole.staff && (value == null || value.isEmpty)) {
+                                  return 'Please enter the invite code from your admin';
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                        ],
 
                         // Confirm Password (only for registration)
                         if (!isLogin) ...[

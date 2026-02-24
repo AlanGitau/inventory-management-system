@@ -6,6 +6,7 @@ import '../models/stock_prediction.dart';
 import '../exceptions/inventory_exceptions.dart';
 import 'notification_service.dart';
 import 'auth_service.dart';
+import '../models/user_model.dart';
 
 class InventoryService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -19,13 +20,23 @@ class InventoryService {
 
   // Helper to get user-specific collection reference
   static CollectionReference _getCollection(String collectionName) {
-    final user = _auth.currentUser;
-    if (user == null) {
+    if (AuthService.currentUser == null) {
       throw InventoryException('User not authenticated');
     }
+    
+    // For multi-role support: Staff should use their Admin's UID for data access
+    final adminUid = AuthService.currentUser?.adminUid;
+    if (adminUid == null || adminUid.isEmpty) {
+       // Fallback to current user UID if adminUid is missing (should not happen for valid profiles)
+       return _firestore
+          .collection('users')
+          .doc(AuthService.currentUser!.id)
+          .collection(collectionName);
+    }
+
     return _firestore
         .collection('users')
-        .doc(user.uid)
+        .doc(adminUid)
         .collection(collectionName);
   }
 

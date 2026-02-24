@@ -172,81 +172,148 @@ class AuthService {
     required String email,
     required String password,
     required String displayName,
-    UserRole? role,
+    required UserRole role,
+    String? inviteCode,
   }) async {
+    UserCredential? userCredential;
     try {
-      // Check if this is the first user (should be admin regardless of role parameter)
-      UserRole userRole = role ?? UserRole.staff;
-      try {
-        final allUsersQuery =
-            await _firestore.collection('users').limit(1).get();
-
-        if (allUsersQuery.docs.isEmpty) {
-          userRole = UserRole.admin;
-        }
-      } catch (firestoreError) {
-        // If we can't check, assume it's not the first user
-      }
-
-      // Create user in Firebase Auth
-      final UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
+      // 1. Create user in Firebase Auth FIRST 
+      // This ensures subsequent Firestore queries (like invite code validation) 
+      // are performed by an authenticated user, satisfying security rules.
+      userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      if (userCredential.user != null) {
-        // Update display name
-        await userCredential.user!.updateDisplayName(displayName);
+      if (userCredential.user == null) return null;
+      
+      final uid = userCredential.user!.uid;
+      String? organizationId;
+      String? adminUid;
+      DateTime trialStartDate = DateTime.now();
 
-        // Create user document in Firestore
-        final newUser = AppUser(
-          id: userCredential.user!.uid,
-          email: email,
-          displayName: displayName,
-          profilePhotoPath: null,
-          role:
-              userRole, // Use the determined userRole instead of role parameter
-          createdAt: DateTime.now(),
-          lastLoginAt: DateTime.now(),
-          isActive: true,
-          phone: '',
-        );
-
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'email': email,
-          'displayName': displayName,
-          'profilePhotoPath': null,
-          'role': userRole.toString().split('.').last,
-          'createdAt': FieldValue.serverTimestamp(),
-          'lastLoginAt': FieldValue.serverTimestamp(),
-          'isActive': true,
-          'phone': '',
-          'emailNotificationsEnabled': true,
-          'smsNotificationsEnabled': true,
-          'expiryAlertsEnabled': true,
-          'stockAlertsEnabled': true,
-          'predictionAlertsEnabled': true,
-        });
-
-        _currentUser = newUser;
-        _authStateController.add(_currentUser);
-
-        await _resetHomeTabIndex();
-
-        // Send welcome notification
-        try {
-          await NotificationService.sendWelcomeNotification(newUser);
-        } catch (e) {
-          // Don't fail user creation if notification fails
+      // 2. Perform role-specific logic (now authenticated)
+      if (role == UserRole.admin) {
+        // Generate unique 6-char organization ID for Admin
+        organizationId = await _generateUniqueOrganizationId();
+        adminUid = uid;
+      } else {
+        // Staff logic: Validate invite code (organizationId)
+        if (inviteCode == null || inviteCode.isEmpty) {
+          throw AuthException('Invite code is required for staff signup.');
         }
 
-        return _currentUser;
+        final adminQuery = await _firestore
+            .collection('users')
+            .where('role', isEqualTo: 'admin')
+            .where('organizationId', isEqualTo: inviteCode)
+            .limit(1)
+            .get();
+
+        if (adminQuery.docs.isEmpty) {
+          throw AuthException('Invalid invite code. Organization not found.');
+        }
+
+        final adminData = adminQuery.docs.first.data();
+        adminUid = adminQuery.docs.first.id;
+        organizationId = inviteCode;
+        
+        // Inherit trial start date from admin
+        if (adminData['trialStartDate'] != null) {
+          trialStartDate = (adminData['trialStartDate'] as Timestamp).toDate();
+        }
       }
 
-      return null;
+      // 3. Update display name
+      await userCredential.user!.updateDisplayName(displayName);
+
+      // 4. Create user document in Firestore
+      final newUser = AppUser(
+        id: uid,
+        email: email,
+        displayName: displayName,
+        profilePhotoPath: null,
+        role: role,
+        organizationId: organizationId,
+        adminUid: adminUid,
+        createdAt: DateTime.now(),
+        lastLoginAt: DateTime.now(),
+        isActive: true,
+        phone: '',
+        trialStartDate: trialStartDate,
+      );
+
+      // Explicitly using lowercase 'admin'/'staff' and 'users' collection
+      await _firestore.collection('users').doc(uid).set({
+        'email': email,
+        'displayName': displayName,
+        'profilePhotoPath': null,
+        'role': role == UserRole.admin ? 'admin' : 'staff',
+        'organizationId': organizationId,
+        'adminUid': adminUid,
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastLoginAt': FieldValue.serverTimestamp(),
+        'isActive': true,
+        'phone': '',
+        'emailNotificationsEnabled': true,
+        'smsNotificationsEnabled': true,
+        'expiryAlertsEnabled': true,
+        'stockAlertsEnabled': true,
+        'predictionAlertsEnabled': true,
+        'trialStartDate': Timestamp.fromDate(trialStartDate),
+      });
+
+      _currentUser = newUser;
+      _authStateController.add(_currentUser);
+
+      await _resetHomeTabIndex();
+
+      // Send welcome notification
+      try {
+        await NotificationService.sendWelcomeNotification(newUser);
+      } catch (e) {
+        // Don't fail user creation if notification fails
+      }
+
+      return _currentUser;
     } catch (e) {
-      throw AuthException('Registration failed: ${_getAuthErrorMessage(e)}');
+      // If Firestore setup fails, we might want to delete the Auth user 
+      // to allow them to try again with the same email.
+      if (userCredential?.user != null) {
+        try {
+          await userCredential!.user!.delete();
+        } catch (deleteError) {
+          // Ignore delete error, we're already throwing the original error
+        }
+      }
+      throw AuthException(e.toString().replaceAll('Exception: ', ''));
+    }
+  }
+
+  // Generate a unique 6-character organization ID
+  static Future<String> _generateUniqueOrganizationId() async {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid ambiguous chars
+    final random = DateTime.now().microsecondsSinceEpoch;
+    
+    while (true) {
+      String code = '';
+      for (int i = 0; i < 6; i++) {
+        // Using a simple pseudo-random approach for 6 chars
+        code += chars[(DateTime.now().microsecondsSinceEpoch + i) % chars.length];
+      }
+      
+      // Check for uniqueness
+      final existing = await _firestore
+          .collection('users')
+          .where('organizationId', isEqualTo: code)
+          .limit(1)
+          .get();
+          
+      if (existing.docs.isEmpty) {
+        return code;
+      }
+      // If not unique, wait a bit and try again
+      await Future.delayed(const Duration(milliseconds: 10));
     }
   }
 

@@ -1,11 +1,18 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'auth_service.dart';
 
 class TrialService {
   static const String _firstLaunchKey = 'first_launch_date';
   static const int trialDurationDays = 14;
 
-  /// Returns the first launch date, or sets it to now if not already set.
+  /// Returns the first launch date (now from user profile).
   static Future<DateTime> getFirstLaunchDate() async {
+    final user = AuthService.currentUser;
+    if (user != null && user.trialStartDate != null) {
+      return user.trialStartDate!;
+    }
+    
+    // Fallback (e.g., if user profile hasn't loaded or field is missing)
     final prefs = await SharedPreferences.getInstance();
     final String? firstLaunchStr = prefs.getString(_firstLaunchKey);
 
