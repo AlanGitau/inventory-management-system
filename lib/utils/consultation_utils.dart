@@ -121,7 +121,7 @@ class ConsultationUtils {
                                   children: [
                                     Expanded(
                                         child: _buildTextField('Phone',
-                                            '+254 712345678', phoneController)),
+                                            '+254 759 585197', phoneController)),
                                     if (isWide) ...[
                                       const SizedBox(width: 16),
                                       Expanded(
@@ -325,7 +325,7 @@ Selected Plan: $selectedPlan
 
                                 final Uri emailLaunchUri = Uri(
                                   scheme: 'mailto',
-                                  path: 'stocksense@cloudora.live',
+                                  path: 'cloudoraltd@gmail.com',
                                   query: 'subject=${Uri.encodeComponent('New Consultation Request - $selectedPlan')}&body=${Uri.encodeComponent(body)}',
                                 );
 

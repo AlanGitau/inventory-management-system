@@ -248,14 +248,14 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                     _buildContactItem(
                       Icons.email,
                       'Email Support',
-                      'support@stocksense.com',
-                      () => _launchEmail('support@stocksense.com'),
+                      'cloudoraltd@gmail.com',
+                      () => _launchEmail('cloudoraltd@gmail.com'),
                     ),
                     _buildContactItem(
                       Icons.phone,
                       'Phone Support',
-                      '+1 (555) 123-4567',
-                      () => _launchPhone('+15551234567'),
+                      '+254 759 585197',
+                      () => _launchPhone('+254759585197'),
                     ),
                     _buildContactItem(
                       Icons.language,
@@ -416,7 +416,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                   Colors.blue,
                   () {
                     Navigator.pop(context);
-                    _launchEmail('support@stocksense.com');
+                    _launchEmail('cloudoraltd@gmail.com');
                   },
                 ),
                 _buildContactOption(
@@ -425,7 +425,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                   Colors.green,
                   () {
                     Navigator.pop(context);
-                    _launchPhone('+15551234567');
+                    _launchPhone('+254759585197');
                   },
                 ),
               ],
@@ -695,7 +695,7 @@ $userInfo
 ''';
 
       await NotificationService.sendEmailNotification(
-        recipientEmail: '232a.dabor@gmail.com',
+        recipientEmail: 'cloudoraltd@gmail.com',
         recipientName: 'StockSense Support Team',
         subject: '🐛 Bug Report: $subject',
         body: emailBody,
@@ -785,7 +785,7 @@ $userInfo
 ''';
 
       await NotificationService.sendEmailNotification(
-        recipientEmail: '232a.dabor@gmail.com',
+        recipientEmail: 'cloudoraltd@gmail.com',
         recipientName: 'StockSense Support Team',
         subject: '💡 Feature Request: $title',
         body: emailBody,

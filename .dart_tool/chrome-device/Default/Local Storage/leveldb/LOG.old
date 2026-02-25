@@ -1,4 +1,14 @@
-2026/02/24-12:15:09.213 34ec Reusing MANIFEST C:\Users\WABOCH~1\AppData\Local\Temp\flutter_tools.be4f706a\flutter_tools_chrome_device.257ddf0a\Default\Local Storage\leveldb/MANIFEST-000001
-2026/02/24-12:15:09.220 34ec Recovering log #4
-2026/02/24-12:15:09.224 34ec Reusing old log C:\Users\WABOCH~1\AppData\Local\Temp\flutter_tools.be4f706a\flutter_tools_chrome_device.257ddf0a\Default\Local Storage\leveldb/000004.log 
-2026/02/24-12:15:09.226 34ec Delete type=0 #3
+2026/02/25-16:13:08.364 291c Reusing MANIFEST C:\Users\WABOCH~1\AppData\Local\Temp\flutter_tools.aeb5160c\flutter_tools_chrome_device.204e89c6\Default\Local Storage\leveldb/MANIFEST-000001
+2026/02/25-16:13:08.371 291c Recovering log #3
+2026/02/25-16:13:08.371 291c Level-0 table #3: started
+2026/02/25-16:13:09.016 291c Level-0 table #3: 2234 bytes OK
+2026/02/25-16:13:09.102 291c Recovering log #4
+2026/02/25-16:13:09.104 291c Level-0 table #4: started
+2026/02/25-16:13:09.333 291c Level-0 table #4: 1762 bytes OK
+2026/02/25-16:13:09.333 291c Recovering log #7
+2026/02/25-16:13:09.336 291c Level-0 table #5: started
+2026/02/25-16:13:09.781 291c Level-0 table #5: 714057 bytes OK
+2026/02/25-16:13:09.986 291c Delete type=0 #3
+2026/02/25-16:13:09.986 291c Delete type=0 #4
+2026/02/25-16:13:09.987 291c Delete type=0 #7
+2026/02/25-16:13:09.987 291c Delete type=2 #8

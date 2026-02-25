@@ -585,36 +585,22 @@ class AuthService {
   }
 
   // Get all users (admin only)
-  static Future<List<AppUser>> getAllUsers() async {
+  static Future<List<AppUser>> getAllUsers({String? organizationId}) async {
     try {
       if (!isUserAdmin()) {
         throw Exception('Only admins can access user list');
       }
 
-      final usersSnapshot = await _firestore.collection('users').get();
+      Query query = _firestore.collection('users');
+      if (organizationId != null) {
+        query = query.where('organizationId', isEqualTo: organizationId);
+      }
+
+      final usersSnapshot = await query.get();
 
       return usersSnapshot.docs.map((doc) {
-        final data = doc.data();
-        return AppUser(
-          id: doc.id,
-          email: data['email'] ?? '',
-          displayName: data['displayName'] ?? 'User',
-          profilePhotoPath: data['profilePhotoPath'],
-          role: _stringToUserRole(data['role'] ?? 'staff'),
-          createdAt: data['createdAt'] != null
-              ? (data['createdAt'] as Timestamp).toDate()
-              : DateTime.now(),
-          lastLoginAt: data['lastLoginAt'] != null
-              ? (data['lastLoginAt'] as Timestamp).toDate()
-              : DateTime.now(),
-          isActive: data['isActive'] ?? true,
-          phone: data['phone'] ?? '',
-          emailNotificationsEnabled: data['emailNotificationsEnabled'] ?? true,
-          smsNotificationsEnabled: data['smsNotificationsEnabled'] ?? true,
-          expiryAlertsEnabled: data['expiryAlertsEnabled'] ?? true,
-          stockAlertsEnabled: data['stockAlertsEnabled'] ?? true,
-          predictionAlertsEnabled: data['predictionAlertsEnabled'] ?? true,
-        );
+        final data = doc.data() as Map<String, dynamic>;
+        return AppUser.fromMap(data, doc.id);
       }).toList();
     } catch (e) {
       throw Exception('Failed to get users: $e');
@@ -672,6 +658,10 @@ class AuthService {
           'displayName': displayName,
           'profilePhotoPath': null,
           'role': role.toString().split('.').last,
+          'organizationId': _currentUser?.organizationId,
+          'adminUid': _currentUser?.role == UserRole.admin
+              ? _currentUser?.id
+              : _currentUser?.adminUid,
           'createdAt': FieldValue.serverTimestamp(),
           'lastLoginAt': FieldValue.serverTimestamp(),
           'isActive': true,
@@ -681,7 +671,7 @@ class AuthService {
           'expiryAlertsEnabled': true,
           'stockAlertsEnabled': true,
           'predictionAlertsEnabled': true,
-          'needsPasswordReset': true, // Flag for temporary password
+          'needsPasswordReset': true,
         });
 
         // Sign out the newly created user immediately
@@ -775,6 +765,15 @@ class AuthService {
         throw Exception('Only admins can update users');
       }
 
+      // Verify organization
+      final targetUserDoc =
+          await _firestore.collection('users').doc(userId).get();
+      if (!targetUserDoc.exists) throw Exception('User not found');
+      final targetUserData = targetUserDoc.data() as Map<String, dynamic>;
+      if (targetUserData['organizationId'] != _currentUser?.organizationId) {
+        throw Exception('You do not have permission to update this user');
+      }
+
       await _firestore.collection('users').doc(userId).update({
         'displayName': displayName,
         'phone': phone,
@@ -804,6 +803,16 @@ class AuthService {
         throw Exception('Only admins can toggle user status');
       }
 
+      // Verify organization
+      final targetUserDoc =
+          await _firestore.collection('users').doc(userId).get();
+      if (!targetUserDoc.exists) throw Exception('User not found');
+      final targetUserData = targetUserDoc.data() as Map<String, dynamic>;
+      if (targetUserData['organizationId'] != _currentUser?.organizationId) {
+        throw Exception(
+            'You do not have permission to change this user\'s status');
+      }
+
       await _firestore.collection('users').doc(userId).update({
         'isActive': isActive,
       });
@@ -823,6 +832,15 @@ class AuthService {
     try {
       if (!isUserAdmin()) {
         throw Exception('Only admins can delete users');
+      }
+
+      // Verify organization
+      final targetUserDoc =
+          await _firestore.collection('users').doc(userId).get();
+      if (!targetUserDoc.exists) throw Exception('User not found');
+      final targetUserData = targetUserDoc.data() as Map<String, dynamic>;
+      if (targetUserData['organizationId'] != _currentUser?.organizationId) {
+        throw Exception('You do not have permission to delete this user');
       }
 
       // Delete user document from Firestore

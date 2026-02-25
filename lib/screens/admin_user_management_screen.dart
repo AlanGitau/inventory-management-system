@@ -61,9 +61,12 @@ class _AdminUserManagementScreenState extends State<AdminUserManagementScreen> {
     });
 
     try {
+      final currentUser = AuthService.currentUser;
       List<AppUser> users;
       if (OfflineService.isOnline) {
-        users = await AuthService.getAllUsers();
+        users = await AuthService.getAllUsers(
+          organizationId: currentUser?.organizationId,
+        );
         // Save to offline storage
         await OfflineService.saveUsersOffline(users);
       } else {

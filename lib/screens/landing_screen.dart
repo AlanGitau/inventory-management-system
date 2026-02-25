@@ -326,6 +326,9 @@ class _LandingScreenState extends State<LandingScreen>
                               ],
                             ),
                           ),
+
+                          // Footer Section
+                          _buildFooter(context, isDarkMode),
                         ],
                       ),
                     ),
@@ -1479,6 +1482,131 @@ class _LandingScreenState extends State<LandingScreen>
           return primaryColor;
       }
     }
+  }
+
+  Widget _buildFooter(BuildContext context, bool isDarkMode) {
+    final theme = Theme.of(context);
+    final currentYear = DateTime.now().year;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      decoration: BoxDecoration(
+        color: isDarkMode
+            ? Colors.black.withOpacity(0.3)
+            : Colors.white.withOpacity(0.3),
+        border: Border(
+          top: BorderSide(
+            color: isDarkMode
+                ? Colors.white.withOpacity(0.1)
+                : Colors.black.withOpacity(0.05),
+          ),
+        ),
+      ),
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Column(
+            children: [
+              Wrap(
+                spacing: 40,
+                runSpacing: 20,
+                alignment: WrapAlignment.center,
+                children: [
+                  _buildFooterInfo(
+                    icon: Icons.email_outlined,
+                    label: 'Support Email',
+                    value: 'cloudoraltd@gmail.com',
+                    isDarkMode: isDarkMode,
+                    onTap: () => launchUrl(Uri.parse('mailto:cloudoraltd@gmail.com')),
+                  ),
+                  _buildFooterInfo(
+                    icon: Icons.phone_outlined,
+                    label: 'Phone Support',
+                    value: '+254 759 585197',
+                    isDarkMode: isDarkMode,
+                    onTap: () => launchUrl(Uri.parse('tel:+254759585197')),
+                  ),
+                  _buildFooterInfo(
+                    icon: Icons.location_on_outlined,
+                    label: 'Based in',
+                    value: 'Nairobi, Kenya',
+                    isDarkMode: isDarkMode,
+                    onTap: null,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
+              const Divider(),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '© $currentYear StockSense.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: isDarkMode ? Colors.white54 : Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'All rights reserved.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: isDarkMode ? Colors.white38 : Colors.black38,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooterInfo({
+    required IconData icon,
+    required String label,
+    required String value,
+    required bool isDarkMode,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 24,
+              color: isDarkMode ? Colors.white70 : Colors.black87,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isDarkMode ? Colors.white38 : Colors.black38,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isDarkMode ? Colors.white : Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildGetStartedButton(BuildContext context) {
