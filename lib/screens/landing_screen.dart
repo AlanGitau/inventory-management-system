@@ -74,6 +74,43 @@ class _LandingScreenState extends State<LandingScreen>
       };
     }
   }
+  Widget _buildPromoBanner(bool isSmallScreen) {
+  return Container(
+    width: double.infinity,
+    color: const Color(0xFFFF6B00), // Exact orange
+    padding: EdgeInsets.symmetric(
+      vertical: isSmallScreen ? 8 : 10,
+      horizontal: 16,
+    ),
+    child: SafeArea(
+      bottom: false,
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.local_offer_outlined,
+              color: Colors.white,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                'Limited-Time Offer: Get 10% OFF all Cloudora Services',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: isSmallScreen ? 12 : 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
   @override
   void initState() {
@@ -128,36 +165,42 @@ class _LandingScreenState extends State<LandingScreen>
       extendBodyBehindAppBar: true,
       backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: AppBar(
-              backgroundColor: isDarkMode
-                  ? Colors.black.withOpacity(0.2)
-                  : Colors.white.withOpacity(0.2),
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              title: Text(
-                'StockSense',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: isDarkMode ? Colors.white : Colors.black87,
-                ),
+  preferredSize: Size.fromHeight(
+    kToolbarHeight + (isSmallScreen ? 44 : 52), // AppBar height + banner height
+  ),
+  child: ClipRect(
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Your existing AppBar
+          AppBar(
+            backgroundColor: isDarkMode
+                ? Colors.black.withOpacity(0.2)
+                : Colors.white.withOpacity(0.2),
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            title: Text(
+              'StockSense',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: isDarkMode ? Colors.white : Colors.black87,
               ),
-              actions: [
-                if (!isSmallScreen) ...[
-                  _buildNavLink(
-                      'Features', isDarkMode, () => _scrollToSection(_featuresKey)),
-                  _buildNavLink(
-                      'Pricing', isDarkMode, () => _scrollToSection(_pricingKey)),
-                  _buildNavLink(
-                      'About', isDarkMode, () => _scrollToSection(_aboutKey)),
-                ],
-                Padding(
-                  padding: const EdgeInsets.only(right: 16, left: 8),
-                  child: Container(
+            ),
+            actions: [
+              if (!isSmallScreen) ...[
+                _buildNavLink(
+                    'Features', isDarkMode, () => _scrollToSection(_featuresKey)),
+                _buildNavLink(
+                    'Pricing', isDarkMode, () => _scrollToSection(_pricingKey)),
+                _buildNavLink(
+                    'About', isDarkMode, () => _scrollToSection(_aboutKey)),
+              ],
+              Padding(
+                padding: const EdgeInsets.only(right: 16, left: 8),
+                child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
@@ -193,12 +236,17 @@ class _LandingScreenState extends State<LandingScreen>
                     ),
                   ),
                 ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
+          // Promo Banner (appears below the AppBar)
+          _buildPromoBanner(isSmallScreen),
+        ],
       ),
+    ),
+  ),
+),
+      
       body: AnimatedBuilder(
         animation: _fadeAnimation,
         builder: (context, child) {
@@ -1516,9 +1564,9 @@ class _LandingScreenState extends State<LandingScreen>
                   _buildFooterInfo(
                     icon: Icons.email_outlined,
                     label: 'Support Email',
-                    value: 'cloudoraltd@gmail.com',
+                    value: 'Stocksense@cloudora.live',
                     isDarkMode: isDarkMode,
-                    onTap: () => launchUrl(Uri.parse('mailto:cloudoraltd@gmail.com')),
+                    onTap: () => launchUrl(Uri.parse('mailto:Stocksense@cloudora.live')),
                   ),
                   _buildFooterInfo(
                     icon: Icons.phone_outlined,
