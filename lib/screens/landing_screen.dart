@@ -74,43 +74,7 @@ class _LandingScreenState extends State<LandingScreen>
       };
     }
   }
-  Widget _buildPromoBanner(bool isSmallScreen) {
-  return Container(
-    width: double.infinity,
-    color: const Color(0xFFFF6B00), // Exact orange
-    padding: EdgeInsets.symmetric(
-      vertical: isSmallScreen ? 8 : 10,
-      horizontal: 16,
-    ),
-    child: SafeArea(
-      bottom: false,
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.local_offer_outlined,
-              color: Colors.white,
-              size: 18,
-            ),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                'Limited-Time Offer: Get 10% OFF all Cloudora Services',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: isSmallScreen ? 12 : 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
+
 
   @override
   void initState() {
@@ -239,8 +203,7 @@ class _LandingScreenState extends State<LandingScreen>
               ),
             ],
           ),
-          // Promo Banner (appears below the AppBar)
-          _buildPromoBanner(isSmallScreen),
+          
         ],
       ),
     ),

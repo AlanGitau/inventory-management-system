@@ -178,8 +178,6 @@ class AuthService {
     UserCredential? userCredential;
     try {
       // 1. Create user in Firebase Auth FIRST 
-      // This ensures subsequent Firestore queries (like invite code validation) 
-      // are performed by an authenticated user, satisfying security rules.
       userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -188,13 +186,36 @@ class AuthService {
       if (userCredential.user == null) return null;
       
       final uid = userCredential.user!.uid;
+
+      // 1.5 IMMEDIATELY write a basic user document to Firestore.
+      // This establishes the user's role in the database before doing any queries.
+      // If the user is an admin, this immediately grants them admin read permissions
+      // in firestore.rules, allowing them to query for organizationId uniqueness safely.
+      await _firestore.collection('users').doc(uid).set({
+        'email': email,
+        'displayName': displayName,
+        'profilePhotoPath': null,
+        'role': role == UserRole.admin ? 'admin' : 'staff',
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastLoginAt': FieldValue.serverTimestamp(),
+        'isActive': true,
+        'phone': '',
+        'emailNotificationsEnabled': true,
+        'smsNotificationsEnabled': true,
+        'expiryAlertsEnabled': true,
+        'stockAlertsEnabled': true,
+        'predictionAlertsEnabled': true,
+      });
+
       String? organizationId;
       String? adminUid;
       DateTime trialStartDate = DateTime.now();
 
-      // 2. Perform role-specific logic (now authenticated)
+      // 2. Perform role-specific logic (now authenticated and role established in DB)
       if (role == UserRole.admin) {
         // Generate unique 6-char organization ID for Admin
+        // The admin can now safely query the users collection for uniqueness
+        // because their document exists with role == 'admin'
         organizationId = await _generateUniqueOrganizationId();
         adminUid = uid;
       } else {
@@ -227,7 +248,14 @@ class AuthService {
       // 3. Update display name
       await userCredential.user!.updateDisplayName(displayName);
 
-      // 4. Create user document in Firestore
+      // 4. Update user document with role-specific data
+      await _firestore.collection('users').doc(uid).update({
+        'organizationId': organizationId,
+        'adminUid': adminUid,
+        'trialStartDate': Timestamp.fromDate(trialStartDate),
+      });
+
+      // 5. Create local AppUser model
       final newUser = AppUser(
         id: uid,
         email: email,
@@ -242,26 +270,6 @@ class AuthService {
         phone: '',
         trialStartDate: trialStartDate,
       );
-
-      // Explicitly using lowercase 'admin'/'staff' and 'users' collection
-      await _firestore.collection('users').doc(uid).set({
-        'email': email,
-        'displayName': displayName,
-        'profilePhotoPath': null,
-        'role': role == UserRole.admin ? 'admin' : 'staff',
-        'organizationId': organizationId,
-        'adminUid': adminUid,
-        'createdAt': FieldValue.serverTimestamp(),
-        'lastLoginAt': FieldValue.serverTimestamp(),
-        'isActive': true,
-        'phone': '',
-        'emailNotificationsEnabled': true,
-        'smsNotificationsEnabled': true,
-        'expiryAlertsEnabled': true,
-        'stockAlertsEnabled': true,
-        'predictionAlertsEnabled': true,
-        'trialStartDate': Timestamp.fromDate(trialStartDate),
-      });
 
       _currentUser = newUser;
       _authStateController.add(_currentUser);
@@ -281,6 +289,7 @@ class AuthService {
       // to allow them to try again with the same email.
       if (userCredential?.user != null) {
         try {
+          await _firestore.collection('users').doc(userCredential?.user?.uid).delete();
           await userCredential!.user!.delete();
         } catch (deleteError) {
           // Ignore delete error, we're already throwing the original error
@@ -303,8 +312,11 @@ class AuthService {
       }
       
       // Check for uniqueness
+      // Added where('role', isEqualTo: 'admin') so this query satisfies the
+      // Firestore security rule which allows querying if resource.data.role == 'admin'
       final existing = await _firestore
           .collection('users')
+          .where('role', isEqualTo: 'admin')
           .where('organizationId', isEqualTo: code)
           .limit(1)
           .get();
