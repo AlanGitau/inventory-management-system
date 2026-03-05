@@ -325,7 +325,7 @@ Selected Plan: $selectedPlan
 
                                 final Uri emailLaunchUri = Uri(
                                   scheme: 'mailto',
-                                  path: 'cloudoraltd@gmail.com',
+                                  path: 'stocksense@cloudora.live',
                                   query: 'subject=${Uri.encodeComponent('New Consultation Request - $selectedPlan')}&body=${Uri.encodeComponent(body)}',
                                 );
 

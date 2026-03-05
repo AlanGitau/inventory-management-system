@@ -129,8 +129,8 @@ class _LandingScreenState extends State<LandingScreen>
       extendBodyBehindAppBar: true,
       backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.white,
       appBar: PreferredSize(
-  preferredSize: Size.fromHeight(
-    kToolbarHeight + (isSmallScreen ? 44 : 52), // AppBar height + banner height
+  preferredSize: const Size.fromHeight(
+    kToolbarHeight,
   ),
   child: ClipRect(
     child: BackdropFilter(
@@ -261,15 +261,25 @@ class _LandingScreenState extends State<LandingScreen>
                             padding: const EdgeInsets.all(24.0),
                             child: Column(
                               children: [
-                                const SizedBox(height: 20),
+                                const SizedBox(height: 80),
                                 // App Overview Section
-                                _buildAppOverview(context, isDarkMode,
-                                    isSmallScreen, isMediumScreen),
+                                Center(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(maxWidth: 900),
+                                    child: _buildAppOverview(context, isDarkMode,
+                                        isSmallScreen, isMediumScreen),
+                                  ),
+                                ),
 
-                                const SizedBox(height: 40),
+                                const SizedBox(height: 80),
 
                                 // Interactive Features Section
-                                _buildFeaturesSection(context, isDarkMode),
+                                Center(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(maxWidth: 900),
+                                    child: _buildFeaturesSection(context, isDarkMode),
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -279,7 +289,7 @@ class _LandingScreenState extends State<LandingScreen>
                             padding: const EdgeInsets.all(24.0),
                             child: Column(
                               children: [
-                                const SizedBox(height: 40),
+                                const SizedBox(height: 80),
 
                                 // Pricing Section
                                 _buildPricingSection(
@@ -293,7 +303,7 @@ class _LandingScreenState extends State<LandingScreen>
                             padding: const EdgeInsets.all(24.0),
                             child: Column(
                               children: [
-                                const SizedBox(height: 60),
+                                const SizedBox(height: 80),
 
                                 // Consultation Section
                                 Center(
@@ -323,17 +333,27 @@ class _LandingScreenState extends State<LandingScreen>
                                   ),
                                 ),
 
-                                const SizedBox(height: 40),
+                                const SizedBox(height: 80),
 
                                 // Quick Start Guide
-                                _buildQuickGuideSection(context, isDarkMode),
+                                Center(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(maxWidth: 900),
+                                    child: _buildQuickGuideSection(context, isDarkMode),
+                                  ),
+                                ),
 
-                                const SizedBox(height: 40),
+                                const SizedBox(height: 80),
 
                                 // Stats Section
-                                _buildStatsSection(context, isDarkMode),
+                                Center(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(maxWidth: 900),
+                                    child: _buildStatsSection(context, isDarkMode),
+                                  ),
+                                ),
 
-                                const SizedBox(height: 40),
+                                const SizedBox(height: 80),
                               ],
                             ),
                           ),
@@ -659,46 +679,47 @@ class _LandingScreenState extends State<LandingScreen>
             const SizedBox(height: 32),
             if (isSmallScreen) ...[
               _PricingCard(
-                title: 'Entry',
+                title: 'Basic',
                 price: 'KES 5,200',
                 usdPrice: '\$40',
                 description: 'Small shops & boutiques',
-                features: const ['Basic Inventory', '5 Users', 'Email Support'],
+                pricingOptions: const [
+                  {'kes': 'KES 3,900', 'usd': '\$30'},
+                  {'kes': 'KES 5,200', 'usd': '\$40'},
+                ],
                 isDarkMode: isDarkMode,
                 isHighlight: false,
-                onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'Entry'),
+                onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'Basic'),
               ),
               const SizedBox(height: 16),
               _PricingCard(
-                title: 'Mid',
+                title: 'Pro',
                 price: 'KES 13,000',
                 usdPrice: '\$100',
                 description: 'Growing SMEs',
-                features: const [
-                  'Advanced Analytics',
-                  '20 Users',
-                  'Priority Support',
-                  'AI Predictions'
+                pricingOptions: const [
+                  {'kes': 'KES 10,400', 'usd': '\$80'},
+                  {'kes': 'KES 11,700', 'usd': '\$90'},
+                  {'kes': 'KES 13,000', 'usd': '\$100'},
                 ],
                 isDarkMode: isDarkMode,
                 isHighlight: true,
-                onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'Mid'),
+                onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'Pro'),
               ),
               const SizedBox(height: 16),
               _PricingCard(
-                title: 'High',
-                price: 'KES 45,500',
-                usdPrice: '\$350',
+                title: 'Premium',
+                price: 'KES 48,750',
+                usdPrice: '\$375',
                 description: 'Retail chains',
-                features: const [
-                  'Unlimited Users',
-                  'Dedicated Support',
-                  'Custom Integrations',
-                  'Multi-location'
+                pricingOptions: const [
+                  {'kes': 'KES 42,900', 'usd': '\$330'},
+                  {'kes': 'KES 45,500', 'usd': '\$350'},
+                  {'kes': 'KES 48,750', 'usd': '\$375'},
                 ],
                 isDarkMode: isDarkMode,
                 isHighlight: false,
-                onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'High'),
+                onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'Premium'),
               ),
             ] else
               SingleChildScrollView(
@@ -709,53 +730,230 @@ class _LandingScreenState extends State<LandingScreen>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     _PricingCard(
-                      title: 'Entry',
+                      title: 'Basic',
                       price: 'KES 5,200',
                       usdPrice: '\$40',
                       description: 'Small shops & boutiques',
-                      features: const ['Basic Inventory', '5 Users', 'Email Support'],
+                      pricingOptions: const [
+                        {'kes': 'KES 3,900', 'usd': '\$30'},
+                        {'kes': 'KES 5,200', 'usd': '\$40'},
+                      ],
                       isDarkMode: isDarkMode,
                       isHighlight: false,
-                      onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'Entry'),
+                      onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'Basic'),
                     ),
                     const SizedBox(width: 16),
                     _PricingCard(
-                      title: 'Mid',
+                      title: 'Pro',
                       price: 'KES 13,000',
                       usdPrice: '\$100',
                       description: 'Growing SMEs',
-                      features: const [
-                        'Advanced Analytics',
-                        '20 Users',
-                        'Priority Support',
-                        'AI Predictions'
+                      pricingOptions: const [
+                        {'kes': 'KES 10,400', 'usd': '\$80'},
+                        {'kes': 'KES 11,700', 'usd': '\$90'},
+                        {'kes': 'KES 13,000', 'usd': '\$100'},
                       ],
                       isDarkMode: isDarkMode,
                       isHighlight: true,
-                      onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'Mid'),
+                      onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'Pro'),
                     ),
                     const SizedBox(width: 16),
                     _PricingCard(
-                      title: 'High',
-                      price: 'KES 45,500',
-                      usdPrice: '\$350',
+                      title: 'Premium',
+                      price: 'KES 48,750',
+                      usdPrice: '\$375',
                       description: 'Retail chains',
-                      features: const [
-                        'Unlimited Users',
-                        'Dedicated Support',
-                        'Custom Integrations',
-                        'Multi-location'
+                      pricingOptions: const [
+                        {'kes': 'KES 42,900', 'usd': '\$330'},
+                        {'kes': 'KES 45,500', 'usd': '\$350'},
+                        {'kes': 'KES 48,750', 'usd': '\$375'},
                       ],
                       isDarkMode: isDarkMode,
                       isHighlight: false,
-                      onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'High'),
+                      onSelectPlan: () => ConsultationUtils.showConsultationDialog(context, plan: 'Premium'),
                     ),
                   ],
                 ),
               ),
+            const SizedBox(height: 32),
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Text(
+                  'One-time deployment fee equal to 20% of the monthly plan applies for setup and onboarding',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                    color: isDarkMode ? Colors.white54 : Colors.black54,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 80),
+            _buildFeatureTable(context, isDarkMode, isSmallScreen, isMediumScreen),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFeatureTable(BuildContext context, bool isDarkMode,
+      bool isSmallScreen, bool isMediumScreen) {
+    return Column(
+      children: [
+        Text(
+          'Compare Features',
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 24),
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: isDarkMode
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDarkMode
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : Colors.grey[200]!,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minWidth: 900),
+                    child: DataTable(
+                      horizontalMargin: 24,
+                      headingRowColor: WidgetStateProperty.all(
+                        const Color(0xFFFF6B00),
+                      ),
+                      dataRowColor: WidgetStateProperty.resolveWith<Color?>(
+                        (Set<WidgetState> states) => Colors.transparent,
+                      ),
+                      columns: [
+                        DataColumn(
+                          label: Expanded(
+                            child: Center(
+                              child: Text('Features',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white)),
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Expanded(
+                            child: Center(
+                              child: Text('Basic',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white)),
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Expanded(
+                            child: Center(
+                              child: Text('Pro',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white)),
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Expanded(
+                            child: Center(
+                              child: Text('Premium',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white)),
+                            ),
+                          ),
+                        ),
+                      ],
+                      rows: [
+                        _buildDataRow('Staff/User Capacity', '5 - 10', '10 - 25', '50 - Unlimited', isDarkMode, isEven: false),
+                        _buildDataRow('Inventory', 'Basic', 'Advanced', 'Multi-location', isDarkMode, isEven: true),
+                        _buildDataRow('Support', 'Email', 'Priority', 'Dedicated', isDarkMode, isEven: false),
+                        _buildDataRow('Advanced Analytics', '—', 'Included', 'Included', isDarkMode, isEven: true),
+                        _buildDataRow('AI Predictions', '—', 'Included', 'Included', isDarkMode, isEven: false),
+                        _buildDataRow('Custom Integrations', '—', '—', 'Included', isDarkMode, isEven: true),
+                        _buildDataRow(
+                            'Messaging Allowance',
+                            'Standard (+33) for \$2',
+                            'Business (+50) for \$3',
+                            'Enterprise (+100) for \$6',
+                            isDarkMode, isEven: false),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  DataRow _buildDataRow(String feature, String entry, String mid, String premium,
+      bool isDarkMode, {bool isEven = false}) {
+    final rowColor = isEven 
+        ? (isDarkMode ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF5F5F5))
+        : Colors.transparent;
+
+    return DataRow(
+      color: WidgetStateProperty.all(rowColor),
+      cells: [
+        DataCell(Center(
+          child: Text(feature,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  color: isDarkMode ? Colors.white70 : Colors.black87)),
+        )),
+        DataCell(Center(
+          child: Text(entry,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                  color: isDarkMode ? Colors.white60 : Colors.black54)),
+        )),
+        DataCell(Center(
+          child: Text(mid,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                  color: isDarkMode ? Colors.white60 : Colors.black54)),
+        )),
+        DataCell(Center(
+          child: Text(premium,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                  color: isDarkMode ? Colors.white60 : Colors.black54)),
+        )),
+      ],
     );
   }
 
@@ -1527,9 +1725,9 @@ class _LandingScreenState extends State<LandingScreen>
                   _buildFooterInfo(
                     icon: Icons.email_outlined,
                     label: 'Support Email',
-                    value: 'Stocksense@cloudora.live',
+                    value: 'support@cloudoraltd.live',
                     isDarkMode: isDarkMode,
-                    onTap: () => launchUrl(Uri.parse('mailto:Stocksense@cloudora.live')),
+                    onTap: () => launchUrl(Uri.parse('mailto:support@cloudoraltd.live')),
                   ),
                   _buildFooterInfo(
                     icon: Icons.phone_outlined,
@@ -1778,7 +1976,7 @@ class _PricingCard extends StatelessWidget {
   final String price;
   final String usdPrice;
   final String description;
-  final List<String> features;
+  final List<Map<String, String>> pricingOptions;
   final bool isDarkMode;
   final bool isHighlight;
   final VoidCallback onSelectPlan;
@@ -1788,7 +1986,7 @@ class _PricingCard extends StatelessWidget {
     required this.price,
     required this.usdPrice,
     required this.description,
-    required this.features,
+    required this.pricingOptions,
     required this.isDarkMode,
     required this.isHighlight,
     required this.onSelectPlan,
@@ -1870,26 +2068,41 @@ class _PricingCard extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           const Divider(),
-          const SizedBox(height: 24),
-          ...features.map((feature) => Padding(
+          const SizedBox(height: 16),
+          Text(
+            'Alternative options:',
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isDarkMode ? Colors.white60 : Colors.black54,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...pricingOptions.map((option) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      Icons.check_circle,
-                      size: 18,
-                      color: isHighlight
-                          ? theme.primaryColor
-                          : (isDarkMode ? Colors.white60 : Colors.green),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
+                    Flexible(
                       child: Text(
-                        feature,
+                        option['kes']!,
                         style: GoogleFonts.poppins(
-                          fontSize: 14,
+                          fontSize: 15,
                           color: isDarkMode ? Colors.white70 : Colors.black87,
                         ),
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        option['usd']!,
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: isDarkMode
+                              ? Colors.white
+                              : (isHighlight ? theme.primaryColor : Colors.black87),
+                        ),
+                        textAlign: TextAlign.right,
                       ),
                     ),
                   ],
