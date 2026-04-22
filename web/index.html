@@ -31,7 +31,16 @@
   <link rel="icon" type="image/jpeg" href="assets/icons/orange_logo.jpeg" />
 
   <title>StockSense - Inventory Management</title>
-  <link rel="manifest" href="manifest.json">
+  <!-- <link rel="manifest" href="manifest.json"> -->
+
+  <script>
+    // Completely disable the PWA installation feature
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent the browser from showing the installation prompt or icon
+      e.preventDefault();
+      console.log('StockSense: PWA installation prompt intercepted and prevented.');
+    });
+  </script>
 </head>
 
 <body>
