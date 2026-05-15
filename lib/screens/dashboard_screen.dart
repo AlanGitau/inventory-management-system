@@ -188,6 +188,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildTrialBanner() {
+    if (InventoryService.isDemoMode) return const SizedBox.shrink();
+
     return FutureBuilder<int>(
       future: TrialService.getRemainingDays(),
       builder: (context, snapshot) {

@@ -5,6 +5,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/consultation_utils.dart';
 import 'auth/widget_tree.dart';
+import 'demo_workspace_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -529,24 +530,8 @@ class _LandingScreenState extends State<LandingScreen>
           ),
           child: ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pushReplacement(
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      const WidgetTree(),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0);
-                    const end = Offset.zero;
-                    const curve = Curves.easeInOutCubic;
-                    var tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
-                    var slideAnimation = animation.drive(tween);
-                    return SlideTransition(
-                      position: slideAnimation,
-                      child: child,
-                    );
-                  },
-                ),
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const DemoWorkspaceScreen()),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -558,12 +543,15 @@ class _LandingScreenState extends State<LandingScreen>
                 borderRadius: BorderRadius.circular(30),
               ),
             ),
-            child: Text(
-              'Start 14-Day Free Trial',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                'Explore Interactive Demo',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
           ),
@@ -1836,7 +1824,7 @@ class _LandingScreenState extends State<LandingScreen>
                 child: FadeInAnimation(
                   child: Center(
                     child: Container(
-                      width: 250,
+                      width: 280,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
@@ -1855,30 +1843,7 @@ class _LandingScreenState extends State<LandingScreen>
                       ),
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pushReplacement(
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      const WidgetTree(),
-                              transitionsBuilder: (context, animation,
-                                  secondaryAnimation, child) {
-                                const begin = Offset(1.0, 0.0);
-                                const end = Offset.zero;
-                                const curve = Curves.easeInOutCubic;
-
-                                var tween = Tween(begin: begin, end: end)
-                                    .chain(CurveTween(curve: curve));
-                                var slideAnimation = animation.drive(tween);
-
-                                return SlideTransition(
-                                  position: slideAnimation,
-                                  child: child,
-                                );
-                              },
-                              transitionDuration:
-                                  const Duration(milliseconds: 600),
-                            ),
-                          );
+                          _scrollToSection(_pricingKey);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
@@ -1890,22 +1855,25 @@ class _LandingScreenState extends State<LandingScreen>
                           ),
                           elevation: 0,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Get Started',
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Get Started',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(
-                              Icons.arrow_forward,
-                              size: 20,
-                            ),
-                          ],
+                              const SizedBox(width: 8),
+                              const Icon(
+                                Icons.arrow_forward,
+                                size: 20,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

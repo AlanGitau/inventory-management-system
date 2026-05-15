@@ -59,7 +59,7 @@ class ConsultationUtils {
                               child: Text(
                                 plan != null
                                     ? 'Get Started with $plan Plan'
-                                    : 'Cloudora Waitlist Form',
+                                    : 'Book Your StockSense Consultation',
                                 style: GoogleFonts.poppins(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,

@@ -7,8 +7,10 @@ import '../exceptions/inventory_exceptions.dart';
 import 'notification_service.dart';
 import 'auth_service.dart';
 import '../models/user_model.dart';
+import 'mock_inventory_service.dart';
 
 class InventoryService {
+  static bool isDemoMode = false;
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -156,6 +158,9 @@ class InventoryService {
     String? searchQuery,
     String? category,
   }) async {
+    if (isDemoMode) {
+      return MockInventoryService.getInventoryItems(limit: limit, lastDoc: lastDoc, searchQuery: searchQuery, category: category);
+    }
     try {
       Query query = _getCollection(_inventoryCollection);
 
@@ -188,6 +193,7 @@ class InventoryService {
   }
 
   static Future<String> addInventoryItem(InventoryItem item) async {
+    if (isDemoMode) return MockInventoryService.addInventoryItem(item);
     try {
       final docRef = await _getCollection(_inventoryCollection).add(item.toMap());
 
@@ -228,6 +234,7 @@ class InventoryService {
   }
 
   static Future<void> updateInventoryItem(InventoryItem item) async {
+    if (isDemoMode) return MockInventoryService.updateInventoryItem(item);
     try {
       await _getCollection(_inventoryCollection)
           .doc(item.id)
@@ -258,6 +265,7 @@ class InventoryService {
   }
 
   static Future<void> deleteInventoryItem(String itemId) async {
+    if (isDemoMode) return MockInventoryService.deleteInventoryItem(itemId);
     try {
       await _getCollection(_inventoryCollection).doc(itemId).delete();
 
@@ -272,6 +280,7 @@ class InventoryService {
 
   static Future<void> adjustStock(
       String itemId, int newQuantity, String reason) async {
+    if (isDemoMode) return MockInventoryService.adjustStock(itemId, newQuantity, reason);
     try {
       final itemDoc =
           await _getCollection(_inventoryCollection).doc(itemId).get();
@@ -320,6 +329,7 @@ class InventoryService {
     String? itemId,
     int limit = 100,
   }) async {
+    if (isDemoMode) return MockInventoryService.getStockMovements(itemId: itemId, limit: limit);
     try {
       Query query = _getCollection(_movementsCollection);
 
@@ -343,6 +353,7 @@ class InventoryService {
   static Future<List<Map<String, dynamic>>> getMonthlyMovementTrends({
     int monthsBack = 6,
   }) async {
+    if (isDemoMode) return MockInventoryService.getMonthlyMovementTrends(monthsBack: monthsBack);
     try {
       final startDate =
           DateTime.now().subtract(Duration(days: monthsBack * 30));
@@ -411,6 +422,7 @@ class InventoryService {
   static Stream<List<Map<String, dynamic>>> getMonthlyMovementTrendsStream({
     int monthsBack = 6,
   }) {
+    if (isDemoMode) return MockInventoryService.getMonthlyMovementTrendsStream(monthsBack: monthsBack);
     final startDate = DateTime.now().subtract(Duration(days: monthsBack * 30));
 
     return _getCollection(_movementsCollection)
@@ -505,6 +517,7 @@ class InventoryService {
     int limit = 20,
     DocumentSnapshot? lastDoc,
   }) async {
+    if (isDemoMode) return MockInventoryService.getStockPredictions(limit: limit, lastDoc: lastDoc);
     try {
       // Get inventory items with pagination
       Query query = _getCollection(_inventoryCollection).orderBy('name');
@@ -599,6 +612,7 @@ class InventoryService {
     int limit = 20,
     DocumentSnapshot? lastDoc,
   }) async {
+    if (isDemoMode) return MockInventoryService.getInventoryItemsWithSnapshots(limit: limit, lastDoc: lastDoc);
     try {
       Query query = _getCollection(_inventoryCollection).orderBy('name');
 
@@ -623,10 +637,12 @@ class InventoryService {
   // Calculate prediction for a single item (public method)
   static Future<StockPrediction> calculatePredictionForItem(
       InventoryItem item) async {
+    if (isDemoMode) return MockInventoryService.calculatePredictionForItem(item);
     return await _calculateAccuratePrediction(item);
   }
 
   static Future<StockPrediction?> getItemPrediction(String itemId) async {
+    if (isDemoMode) return MockInventoryService.getItemPrediction(itemId);
     try {
       final snapshot = await _getCollection(_predictionsCollection)
           .where('itemId', isEqualTo: itemId)
@@ -865,6 +881,7 @@ class InventoryService {
 
   // Dashboard statistics
   static Future<Map<String, dynamic>> getDashboardStats() async {
+    if (isDemoMode) return MockInventoryService.getDashboardStats();
     try {
       final itemsSnapshot = await _getCollection(_inventoryCollection).get();
       final items =
@@ -902,6 +919,7 @@ class InventoryService {
 
   // Real-time dashboard statistics stream
   static Stream<Map<String, dynamic>> getDashboardStatsStream() {
+    if (isDemoMode) return MockInventoryService.getDashboardStatsStream();
     try {
       return _getCollection(_inventoryCollection)
           .snapshots()
@@ -953,6 +971,7 @@ class InventoryService {
 
   // Get category statistics for dashboard
   static Future<Map<String, int>> getCategoryStats() async {
+    if (isDemoMode) return MockInventoryService.getCategoryStats();
     try {
       final itemsSnapshot =
           await _getCollection(_inventoryCollection).get();
@@ -976,6 +995,7 @@ class InventoryService {
 
   // Real-time category statistics stream
   static Stream<Map<String, int>> getCategoryStatsStream() {
+    if (isDemoMode) return MockInventoryService.getCategoryStatsStream();
     try {
       return _getCollection(_inventoryCollection)
           .snapshots()
@@ -1005,6 +1025,7 @@ class InventoryService {
 
   // Categories
   static Future<List<String>> getCategories() async {
+    if (isDemoMode) return MockInventoryService.getCategories();
     try {
       final snapshot = await _getCollection(_categoriesCollection)
           .orderBy('name')
