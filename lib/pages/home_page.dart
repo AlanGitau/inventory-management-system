@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../models/user_model.dart';
-import '../services/auth_service.dart';
-import '../screens/inventory_list_screen.dart';
-import '../screens/dashboard_screen.dart';
-import '../screens/stock_movements_screen.dart';
-import '../screens/predictions_screen.dart';
-import '../screens/profile_screen.dart';
+import 'package:inventory_management_system/features/auth/models/user_model.dart';
+import 'package:inventory_management_system/features/auth/services/auth_service.dart';
+import 'package:inventory_management_system/features/dashboard/screens/dashboard_screen.dart';
+import 'package:inventory_management_system/features/inventory/screens/inventory_list_screen.dart';
+import 'package:inventory_management_system/features/predictions/screens/predictions_screen.dart';
+import 'package:inventory_management_system/features/profile/screens/profile_screen.dart';
+import 'package:inventory_management_system/features/stock/screens/stock_movements_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
