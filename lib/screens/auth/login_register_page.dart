@@ -493,59 +493,6 @@ class _LoginPageState extends State<LoginPage> {
                                 : 'Already have an account? Sign in',
                           ),
                         ),
-
-                        // Demo credentials info (only for login)
-                        if (isLogin) ...[
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? Colors.blue[900]!.withValues(alpha: 0.3)
-                                  : Colors.blue[50],
-                              border: Border.all(
-                                color: Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? Colors.blue[400]!
-                                    : Colors.blue[200]!,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Demo Credentials:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? Colors.blue[300]
-                                        : Colors.blue[800],
-                                  ),
-                                ),
-                                Text(
-                                  'Email: admin@inventory.com',
-                                  style: TextStyle(
-                                    color: Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? Colors.blue[200]
-                                        : Colors.blue[700],
-                                  ),
-                                ),
-                                Text(
-                                  'Password: user\'s password',
-                                  style: TextStyle(
-                                    color: Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? Colors.blue[200]
-                                        : Colors.blue[700],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
