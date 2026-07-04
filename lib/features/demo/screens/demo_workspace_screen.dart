@@ -1,87 +1,102 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../inventory/services/inventory_service.dart';
-import '../../home/screens/home_page.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../inventory/screens/inventory_list_screen.dart';
+import '../../stock/screens/stock_movements_screen.dart';
+import '../widgets/demo_sidebar.dart';
+import '../widgets/demo_top_bar.dart';
+import 'demo_overview_screen.dart';
+import 'demo_predictions_screen.dart';
+import 'demo_profile_screen.dart';
+
+const double _sidebarBreakpoint = 900;
 
 class DemoWorkspaceScreen extends StatefulWidget {
-  const DemoWorkspaceScreen({Key? key}) : super(key: key);
+  const DemoWorkspaceScreen({super.key});
 
   @override
-  _DemoWorkspaceScreenState createState() => _DemoWorkspaceScreenState();
+  State<DemoWorkspaceScreen> createState() => _DemoWorkspaceScreenState();
 }
 
 class _DemoWorkspaceScreenState extends State<DemoWorkspaceScreen> {
+  int _selectedIndex = 0;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final _pages = const [
+    DemoOverviewScreen(),
+    InventoryListScreen(),
+    StockMovementsScreen(),
+    DemoPredictionsScreen(),
+    DemoProfileScreen(),
+  ];
+
   @override
   void initState() {
     super.initState();
-    // Enable Demo Mode
     InventoryService.isDemoMode = true;
   }
 
   @override
   void dispose() {
-    // Disable Demo Mode when leaving
     InventoryService.isDemoMode = false;
     super.dispose();
   }
 
+  void _exitDemo() {
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          // Banner
-          Container(
-            width: double.infinity,
-            color: Colors.orange.shade700,
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+    final brightness = Theme.of(context).brightness;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= _sidebarBreakpoint;
+
+        if (isWide) {
+          return Scaffold(
+            backgroundColor: AppColors.backgroundOf(brightness),
+            body: Row(
               children: [
-                const Icon(Icons.info_outline, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'This is a temporary sandbox session. Data will not be saved.',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                DemoSidebar(
+                  selectedIndex: _selectedIndex,
+                  onSelect: (index) => setState(() => _selectedIndex = index),
+                  onExitDemo: _exitDemo,
                 ),
-                const SizedBox(width: 16),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.white24,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    minimumSize: Size.zero,
-                  ),
-                  child: Text(
-                    'Exit Demo',
-                    style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Column(
+                    children: [
+                      DemoTopBar(title: demoNavItems[_selectedIndex].label),
+                      Expanded(
+                        child: IndexedStack(index: _selectedIndex, children: _pages),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-          // Wrap the HomePage in Expanded so it takes the rest of the screen
-          // We wrap it in a nested Navigator or just Expanded?
-          // Since HomePage provides its own Scaffold with AppBar, putting it inside a Column
-          // might cause layout issues (Scaffold inside Column inside Scaffold).
-          // Let's use Expanded.
-          Expanded(
-            child: ClipRect(
-              child: const HomePage(),
+          );
+        }
+
+        return Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: AppColors.backgroundOf(brightness),
+          drawer: Drawer(
+            child: DemoSidebar(
+              selectedIndex: _selectedIndex,
+              onSelect: (index) => setState(() => _selectedIndex = index),
+              onExitDemo: _exitDemo,
+              onNavigate: () => Navigator.of(context).pop(),
             ),
           ),
-        ],
-      ),
+          appBar: DemoTopBar(
+            title: demoNavItems[_selectedIndex].label,
+            onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
+          ),
+          body: IndexedStack(index: _selectedIndex, children: _pages),
+        );
+      },
     );
   }
 }

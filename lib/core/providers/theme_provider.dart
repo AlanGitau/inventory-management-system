@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_colors.dart';
 
 class ThemeProvider extends ChangeNotifier {
   static const String _themeKey = 'theme_mode';
@@ -25,11 +26,12 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Cloudora Orange color palette
-  static const Color primaryOrange = Color(0xFFFF6B00); // Cloudora Orange
+  // Cloudora Orange color palette — sourced from AppColors, the single
+  // place brand/semantic colors are defined (see lib/core/theme).
+  static const Color primaryOrange = AppColors.primary;
   static const Color secondaryOrange = Color(0xFFFF8C00); // Darker Orange
   static const Color accentOrange = Color(0xFFFF9E40); // Lighter Orange
-  static const Color lightOrange = Color(0xFFFFB74D); // Soft Orange
+  static const Color lightOrange = AppColors.primaryLight;
   static const Color paleOrange = Color(0xFFFFE0B2); // Pale Orange
 
   ThemeData get lightTheme {

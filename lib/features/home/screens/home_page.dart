@@ -12,7 +12,8 @@ import '../../profile/screens/profile_screen.dart';
 
 class HomePage extends StatefulWidget {
   final AppUser? currentUser;
-  const HomePage({super.key, this.currentUser});
+  final Widget? profileScreenOverride;
+  const HomePage({super.key, this.currentUser, this.profileScreenOverride});
 
   @override
   HomePageState createState() => HomePageState();
@@ -38,7 +39,7 @@ class HomePageState extends State<HomePage> {
       const InventoryListScreen(),
       const StockMovementsScreen(),
       const PredictionsScreen(),
-      const ProfileScreen(),
+      widget.profileScreenOverride ?? const ProfileScreen(),
     ];
   }
 
