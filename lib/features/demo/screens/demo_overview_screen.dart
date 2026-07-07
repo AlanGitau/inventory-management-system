@@ -119,13 +119,15 @@ class _DemoOverviewScreenState extends State<DemoOverviewScreen> {
                 : constraints.maxWidth < 900
                     ? 2
                     : 4;
-            return GridView.count(
-              crossAxisCount: columns,
+            return GridView(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: AppSpacing.lg,
-              mainAxisSpacing: AppSpacing.lg,
-              childAspectRatio: 1.7,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                crossAxisSpacing: AppSpacing.lg,
+                mainAxisSpacing: AppSpacing.lg,
+                mainAxisExtent: 148,
+              ),
               children: [
                 DemoStatCard(
                   label: 'Total Items',
